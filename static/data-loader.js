@@ -1,7 +1,10 @@
 // 정적 모드에서 책 데이터 로드
 async function loadStaticBooks() {
     try {
-        const response = await fetch('/static/data/books.json');
+        // Base path를 고려한 경로 사용
+        const basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
+        const url = `${basePath}static/data/books.json`;
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -28,7 +31,10 @@ async function loadStaticBooks() {
 // 정적 모드에서 통계 데이터 로드
 async function loadStaticStats() {
     try {
-        const response = await fetch('/static/data/stats.json');
+        // Base path를 고려한 경로 사용
+        const basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
+        const url = `${basePath}static/data/stats.json`;
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -44,7 +50,10 @@ async function loadStaticStats() {
 // 정적 모드에서 연말 결산 데이터 로드
 async function loadStaticSummary() {
     try {
-        const response = await fetch('/static/data/summary.json');
+        // Base path를 고려한 경로 사용
+        const basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
+        const url = `${basePath}static/data/summary.json`;
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

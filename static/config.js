@@ -3,15 +3,28 @@ const STATIC_MODE = window.location.hostname !== 'localhost' &&
                     window.location.hostname !== '127.0.0.1' &&
                     window.location.hostname !== '';
 
+// Base path 감지 (GitHub Pages의 경우 /bookshelf/ 같은 subdirectory)
+function getBasePath() {
+    const path = window.location.pathname;
+    // /bookshelf/ 같은 subdirectory가 있는지 확인
+    const match = path.match(/^(\/[^\/]+\/)/);
+    if (match && match[1] !== '/') {
+        return match[1];
+    }
+    return '';
+}
+
+const BASE_PATH = getBasePath();
+
 // API URL 헬퍼 함수
 function getApiUrl(endpoint) {
     if (STATIC_MODE) {
         // 정적 모드: JSON 파일 경로 반환
         const endpointMap = {
-            'api/books': '/static/data/books.json',
-            'api/stats': '/static/data/stats.json',
-            'api/books/current-year': '/static/data/books.json', // 클라이언트에서 필터링
-            'api/year-end-summary': '/static/data/summary.json'
+            'api/books': `${BASE_PATH}static/data/books.json`,
+            'api/stats': `${BASE_PATH}static/data/stats.json`,
+            'api/books/current-year': `${BASE_PATH}static/data/books.json`, // 클라이언트에서 필터링
+            'api/year-end-summary': `${BASE_PATH}static/data/summary.json`
         };
         
         // 매핑된 경로가 있으면 사용
@@ -20,7 +33,7 @@ function getApiUrl(endpoint) {
         }
         
         // 기본 변환 로직
-        return `/static/data/${endpoint.replace('api/', '').replace('/', '-')}.json`;
+        return `${BASE_PATH}static/data/${endpoint.replace('api/', '').replace('/', '-')}.json`;
     } else {
         // Flask 모드: API 엔드포인트 반환
         return `/${endpoint}`;
