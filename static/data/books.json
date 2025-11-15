@@ -111,13 +111,13 @@
   },
   {
     "title": "라쇼몬",
-    "author": "아쿠타가와 류노스케(芥川龍之介)",
+    "author": "아쿠타가와 류노스케",
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
     "rating": "",
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=pghREQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "https://books.google.com/books/content?id=AQtEBQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
   },
   {
     "title": "인형의집",
@@ -221,7 +221,7 @@
   },
   {
     "title": "숨결이 바람될 때",
-    "author": "팀 켈러",
+    "author": "폴칼라니티",
     "category": "스리픽",
     "read_date": "2025-04-01",
     "description": "",
@@ -241,13 +241,13 @@
   },
   {
     "title": "거울 앞에서 너무 많은 시간을 보냈다",
-    "author": "",
+    "author": "Renee Engeln",
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
     "rating": "",
     "review": "",
-    "cover_image": ""
+    "cover_image": "https://books.google.com/books/content?id=duI7DwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
   },
   {
     "title": "가재가 노래하는 곳",
@@ -271,43 +271,43 @@
   },
   {
     "title": "파리대왕",
-    "author": "",
+    "author": "윌리엄 골딩",
     "category": "북클럽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=FqW5MAAACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "rating": 3.5,
+    "review": "오래된 번역체 때문에 읽기 힘들었다. 그래도 노벨상 작가의 책이라 열심히 읽음! 다 읽었을 때 뿌듯했다.",
+    "cover_image": "/static/uploads/922d7e14-09df-4f23-826d-ed72f22403b3.jpg"
   },
   {
     "title": "행복한 질문",
-    "author": "오나리유코",
+    "author": "오나리 유코",
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=hALaMgAACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "rating": 3.0,
+    "review": "귀여운 내용의 동화책. 스무살 때 읽었던 책을 다시 보니 감회가 새로웠다. 만난지 얼마 안 된 연인이 있다면 선물하기 좋음.",
+    "cover_image": "/static/uploads/807241bc-fd3e-436e-aa3c-44b9701ce5b1.jpg"
   },
   {
     "title": "있으려나 서점",
-    "author": "",
+    "author": "고스트북스, 고요서사, 공상온도, 달팽이책방, 땡스북스, 문우당서림, 삼일문고, 새한서점, 서울셀렉션, 어쩌다책방, 영화책방35mm, 완벽한날들, 위트앤시니컬, 인덱스, 제주사슴책방, 지금의세상, 책방심다, 통문관",
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
     "rating": "",
     "review": "",
-    "cover_image": ""
+    "cover_image": "https://books.google.com/books/content?id=E8LsDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
   },
   {
     "title": "줄무늬 파자마를 입은 소년",
-    "author": "",
+    "author": "존 보인",
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
     "rating": "",
     "review": "",
-    "cover_image": ""
+    "cover_image": "https://books.google.com/books/content?id=ec6aAAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
   },
   {
     "title": "인간실격",
@@ -345,9 +345,9 @@
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=b9c4EQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 3.5,
+    "review": "음식과 타임리프의 조화라... 소재가 흥미로움. 이 책 읽고나서 잘 끓인 곰탕이 먹고 싶어져서 국밥집에 갔다. 곰탕이 맛있었다. ",
+    "cover_image": "/static/uploads/1dfb67c2-b3fa-41c3-9feb-b5232d0fafc1.jpg"
   },
   {
     "title": "곰탕 2",
@@ -355,39 +355,39 @@
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=A9g4EQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 4.0,
+    "review": "과거로 회귀한 사람들이 돈을 버는 방법이 '이거' 라고?! 아이디어가 너무 대단하다. 나는 미나리곰탕을 좋아한다.",
+    "cover_image": "/static/uploads/cee343a6-e565-4b7f-a532-907d9550e847.jpg"
   },
   {
     "title": "음악소설집",
-    "author": "",
+    "author": "김애란",
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": ""
+    "rating": 3.5,
+    "review": "예린이의 추천으로 읽기 시작한 책",
+    "cover_image": "/static/uploads/27612920-2f19-412e-a163-714b7ca3e8c6.jpg"
   },
   {
     "title": "나를 사랑하고 싶어",
-    "author": "",
+    "author": "와타나베 폰",
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": ""
+    "rating": 3.5,
+    "review": "가정에서 학대를 받은 작가의 이야기... 저는 그정도로 힘들진 않긴 한데요 ㅠ... 그래도 함께 힘내요!!!!!",
+    "cover_image": "/static/uploads/58f7123d-546b-42b6-969c-798888626e9f.jpg"
   },
   {
     "title": "아무튼",
-    "author": "홍한별",
+    "author": "아고타 크리스토프",
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=StibEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 2.0,
+    "review": "얇아서 호기롭게 집어 들었는데... 어떤 내용인지 기억에 잘 안남는 책이었다.",
+    "cover_image": "/static/uploads/f7d49b11-24a3-4208-ac8c-ec74409d51da.jpg"
   },
   {
     "title": "헌등사",
@@ -421,13 +421,13 @@
   },
   {
     "title": "히든 픽처스",
-    "author": "Jason Rekulak",
+    "author": "제이슨 르쿨락",
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=cjfO0AEACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "rating": 4.5,
+    "review": "너무 흥미진진해서 앉은 자리에서 뚝딱 읽어버림",
+    "cover_image": "/static/uploads/71cce30d-41ba-4c79-baf2-2b9d5bfd05ba.jpg"
   },
   {
     "title": "버진 수어사이드",
@@ -445,19 +445,19 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=gDmaDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 3.5,
+    "review": "내가 어렸을 때 이런 내용의 책을 읽었다고? 결말이 충격적",
+    "cover_image": "/static/uploads/a6fd8039-dc9d-4b75-a02c-40422e9e28d7.jpg"
   },
   {
     "title": "서부 전선 이상 없다",
-    "author": "에리히마리아레마르크",
+    "author": "에리히 마리아 레마르크",
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=fZ6_MQAACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "rating": 4.5,
+    "review": "넷플에서 영화 보고 책까지 읽음! 영화만큼 재밌었고, 주인공과 친구들의 허무한 죽음이 안타까웠다.",
+    "cover_image": "/static/uploads/14281039-9afb-429e-be42-f86bb49d0182.jpg"
   },
   {
     "title": "완전한 행복",
@@ -481,13 +481,13 @@
   },
   {
     "title": "삼체1: 삼체문제",
-    "author": "刘慈欣",
+    "author": "류츠신",
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=4k3vzgEACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "rating": 4.0,
+    "review": "정말 두껍다",
+    "cover_image": "/static/uploads/055e9e2f-b827-425e-bd2e-ab93b4399350.jpg"
   },
   {
     "title": "김용호: 거짓말엔 이제 지쳤다",
@@ -531,13 +531,13 @@
   },
   {
     "title": "삼체2: 암흑의 숲",
-    "author": "劉慈欣",
+    "author": "류츠신",
     "category": "스리픽",
     "read_date": "2025-09-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=dcnvzgEACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "rating": 3.5,
+    "review": "너무 길어용",
+    "cover_image": "/static/uploads/4e64bc7e-c0ae-4ddd-a696-398277631a89.jpg"
   },
   {
     "title": "분실물이 돌아왔습니다",
