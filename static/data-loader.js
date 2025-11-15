@@ -2,8 +2,21 @@
 async function loadStaticBooks() {
     try {
         // Base path를 고려한 경로 사용
-        const basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
+        let basePath = '';
+        if (typeof BASE_PATH !== 'undefined') {
+            basePath = BASE_PATH;
+        } else {
+            // BASE_PATH가 없으면 직접 계산
+            const path = window.location.pathname;
+            if (path !== '/' && path !== '') {
+                const parts = path.split('/').filter(p => p);
+                if (parts.length > 0) {
+                    basePath = `/${parts[0]}/`;
+                }
+            }
+        }
         const url = `${basePath}static/data/books.json`;
+        console.log('Loading books from:', url);
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -32,8 +45,21 @@ async function loadStaticBooks() {
 async function loadStaticStats() {
     try {
         // Base path를 고려한 경로 사용
-        const basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
+        let basePath = '';
+        if (typeof BASE_PATH !== 'undefined') {
+            basePath = BASE_PATH;
+        } else {
+            // BASE_PATH가 없으면 직접 계산
+            const path = window.location.pathname;
+            if (path !== '/' && path !== '') {
+                const parts = path.split('/').filter(p => p);
+                if (parts.length > 0) {
+                    basePath = `/${parts[0]}/`;
+                }
+            }
+        }
         const url = `${basePath}static/data/stats.json`;
+        console.log('Loading stats from:', url);
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -51,8 +77,21 @@ async function loadStaticStats() {
 async function loadStaticSummary() {
     try {
         // Base path를 고려한 경로 사용
-        const basePath = typeof BASE_PATH !== 'undefined' ? BASE_PATH : '';
+        let basePath = '';
+        if (typeof BASE_PATH !== 'undefined') {
+            basePath = BASE_PATH;
+        } else {
+            // BASE_PATH가 없으면 직접 계산
+            const path = window.location.pathname;
+            if (path !== '/' && path !== '') {
+                const parts = path.split('/').filter(p => p);
+                if (parts.length > 0) {
+                    basePath = `/${parts[0]}/`;
+                }
+            }
+        }
         const url = `${basePath}static/data/summary.json`;
+        console.log('Loading summary from:', url);
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
