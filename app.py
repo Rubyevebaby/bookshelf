@@ -120,90 +120,160 @@ def get_book_info(title, author=''):
     
     # Try Google Books API first
     try:
-        # Use general search for better results with Korean books
-        query = title
+        # Use intitle search for better matching with Korean books
+        # Try multiple query strategies for better results
+        queries = []
+        
+        # Strategy 1: intitle search (most accurate for Korean books)
+        queries.append(f'intitle:"{title}"')
+        
+        # Strategy 2: title + author if available
         if author and author.strip():
-            query = f'{title} {author}'
+            queries.append(f'intitle:"{title}" inauthor:"{author}"')
+            queries.append(f'"{title}" "{author}"')
         
-        print(f"Searching Google Books API with query: {query}")
+        # Strategy 3: general search
+        queries.append(title)
+        if author and author.strip():
+            queries.append(f'{title} {author}')
         
-        response = requests.get(
-            'https://www.googleapis.com/books/v1/volumes',
-            params={'q': query, 'maxResults': 5},
-            timeout=5
-        )
+        print(f"Searching Google Books API for: {title}")
         
-        if response.status_code == 200:
-            data = response.json()
-            print(f"Google Books API returned {len(data.get('items', []))} results")
-            
-            if 'items' in data and len(data['items']) > 0:
-                # Try to find the best match with image
-                for item in data['items']:
-                    volume_info = item.get('volumeInfo', {})
-                    image_links = volume_info.get('imageLinks', {})
-                    authors = volume_info.get('authors', [])
+        # Try each query strategy
+        for query in queries:
+            try:
+                items = []
+                # Try with langRestrict first, then without if no results
+                for lang_restrict in ['ko', None]:
+                    params = {'q': query, 'maxResults': 10}
+                    if lang_restrict:
+                        params['langRestrict'] = lang_restrict
                     
-                    # Get author if not provided
-                    if not author or not author.strip():
-                        if authors and len(authors) > 0:
-                            result['author'] = ', '.join(authors)
+                    response = requests.get(
+                        'https://www.googleapis.com/books/v1/volumes',
+                        params=params,
+                        timeout=10
+                    )
                     
-                    if image_links:
-                        # Try different image sizes (prefer larger, higher quality)
-                        for size in ['extraLarge', 'large', 'medium', 'small', 'thumbnail', 'smallThumbnail']:
-                            if size in image_links:
-                                url = image_links[size]
-                                # Try to get higher quality by modifying URL
-                                # Replace zoom=1 with zoom=0 for original size
-                                if 'zoom=1' in url:
-                                    url = url.replace('zoom=1', 'zoom=0')
-                                elif '&zoom=1' in url:
-                                    url = url.replace('&zoom=1', '&zoom=0')
-                                print(f"Found cover image: {url}")
-                                result['cover_url'] = url
-                                # Return as soon as we find both author and cover
-                                if result['author'] and result['cover_url']:
+                    if response.status_code == 200:
+                        data = response.json()
+                        items = data.get('items', [])
+                        
+                        if items:
+                            print(f"Google Books API returned {len(items)} results for query: {query}")
+                            
+                            # Try to find the best match with image
+                            for item in items:
+                                volume_info = item.get('volumeInfo', {})
+                                item_title = volume_info.get('title', '').strip()
+                                image_links = volume_info.get('imageLinks', {})
+                                authors = volume_info.get('authors', [])
+                                
+                                # Check if title matches (fuzzy match for Korean books)
+                                title_match = False
+                                if item_title.lower() == title.lower():
+                                    title_match = True
+                                elif title in item_title or item_title in title:
+                                    title_match = True
+                                
+                                # Get author if not provided
+                                if not result['author'] and authors and len(authors) > 0:
+                                    result['author'] = ', '.join(authors)
+                                
+                                # Get cover image (prioritize items with images)
+                                if image_links and not result['cover_url']:
+                                    # Try different image sizes (prefer larger, higher quality)
+                                    for size in ['extraLarge', 'large', 'medium', 'small', 'thumbnail', 'smallThumbnail']:
+                                        if size in image_links:
+                                            url = image_links[size]
+                                            # Try to get higher quality by modifying URL
+                                            # Replace zoom=1 with zoom=0 for original size, or use larger size
+                                            if 'zoom=1' in url:
+                                                url = url.replace('zoom=1', 'zoom=0')
+                                            elif '&zoom=1' in url:
+                                                url = url.replace('&zoom=1', '&zoom=0')
+                                            
+                                            # Use https if available
+                                            if url.startswith('http://'):
+                                                url = url.replace('http://', 'https://', 1)
+                                            
+                                            print(f"Found cover image: {url}")
+                                            result['cover_url'] = url
+                                            
+                                            # If we have both cover and author, return immediately
+                                            if result['cover_url'] and result['author']:
+                                                return result
+                                            # If we found cover with title match, return it
+                                            if title_match and result['cover_url']:
+                                                return result
+                                            break
+                                
+                                # If we found a good match with cover, return it
+                                if title_match and result['cover_url']:
                                     return result
+                            
+                            # If we found cover, return it immediately
+                            if result['cover_url']:
+                                return result
+                            # If we found author but no cover, continue to next query
+                            if result['author'] and not result['cover_url']:
                                 break
-                
-                # If we have author but no cover, try Open Library with ISBN
-                if result['author'] and not result['cover_url']:
-                    for item in data['items']:
+                    
+                    elif response.status_code != 200:
+                        if not lang_restrict:  # Only print error for the last attempt
+                            print(f"Google Books API returned status code: {response.status_code} for query: {query}")
+                        continue
+                    
+                    # If we got results, don't try without langRestrict
+                    if items:
+                        break
+                    
+            except requests.exceptions.Timeout:
+                print(f"Timeout for query: {query}")
+                continue
+            except Exception as e:
+                print(f"Error with query '{query}': {e}")
+                continue
+        
+        # If we have author but no cover, try Open Library with ISBN from last successful query
+        if result['author'] and not result['cover_url']:
+            try:
+                response = requests.get(
+                    'https://www.googleapis.com/books/v1/volumes',
+                    params={'q': f'intitle:"{title}"', 'maxResults': 5},
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    items = data.get('items', [])
+                    for item in items:
                         volume_info = item.get('volumeInfo', {})
                         isbn_list = volume_info.get('industryIdentifiers', [])
                         for identifier in isbn_list:
+                            isbn = None
                             if identifier.get('type') == 'ISBN_13':
                                 isbn = identifier.get('identifier')
-                                if isbn:
-                                    openlib_url = f'https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg'
-                                    # Verify the image exists
-                                    try:
-                                        img_check = requests.head(openlib_url, timeout=2)
-                                        if img_check.status_code == 200:
-                                            print(f"Found Open Library cover: {openlib_url}")
-                                            result['cover_url'] = openlib_url
-                                            return result
-                                    except:
-                                        pass
                             elif identifier.get('type') == 'ISBN_10':
                                 isbn = identifier.get('identifier')
-                                if isbn:
-                                    openlib_url = f'https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg'
-                                    try:
-                                        img_check = requests.head(openlib_url, timeout=2)
-                                        if img_check.status_code == 200:
-                                            print(f"Found Open Library cover: {openlib_url}")
-                                            result['cover_url'] = openlib_url
-                                            return result
-                                    except:
-                                        pass
-                
-                # Return what we found (even if incomplete)
-                if result['author'] or result['cover_url']:
-                    return result
-        else:
-            print(f"Google Books API returned status code: {response.status_code}")
+                            
+                            if isbn:
+                                openlib_url = f'https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg'
+                                # Verify the image exists
+                                try:
+                                    img_check = requests.head(openlib_url, timeout=3)
+                                    if img_check.status_code == 200:
+                                        print(f"Found Open Library cover: {openlib_url}")
+                                        result['cover_url'] = openlib_url
+                                        return result
+                                except:
+                                    pass
+            except:
+                pass
+        
+        # Return what we found (even if incomplete)
+        if result['author'] or result['cover_url']:
+            return result
+            
     except Exception as e:
         print(f"Error in get_book_info: {e}")
         import traceback
