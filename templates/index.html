@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookshelf</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1 class="title">📚 My Bookshelf</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">📅 Today</span>
+                    <span class="stat-value" id="current-date">-</span>
+                </div>
+                <div class="stat-item highlight">
+                    <span class="stat-label">📖 Books Read This Year</span>
+                    <span class="stat-value" id="year-count">-</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs Section -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-all-books" onclick="switchTab('all-books')">📋 올해 읽은 모든 책</button>
+            <button class="tab-btn" id="tab-year-end" onclick="switchTab('year-end')"><span id="year-end-tab-text">🎊 2025 연말 결산</span></button>
+        </div>
+
+        <!-- All Books Tab Content -->
+        <div class="tab-content active" id="tab-content-all-books">
+        <!-- Controls Section -->
+        <div class="controls">
+            <div class="search-filter-row">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="🔍 Search books...">
+                </div>
+                <div class="filter-box">
+                    <select id="category-filter">
+                        <option value="">All Categories</option>
+                        <option value="스리픽">스리픽</option>
+                        <option value="북클럽">북클럽</option>
+                    </select>
+                </div>
+                <div class="sort-box">
+                    <select id="sort-select">
+                        <option value="read_date">Sort by Date</option>
+                        <option value="rating">Sort by Rating</option>
+                        <option value="title">Sort by Title</option>
+                    </select>
+                    <select id="order-select">
+                        <option value="desc">Descending</option>
+                        <option value="asc">Ascending</option>
+                    </select>
+                </div>
+            </div>
+            <button class="add-book-btn" id="add-book-btn">➕ Add New Book</button>
+        </div>
+
+        <!-- Books Grid -->
+        <div class="books-grid" id="books-grid">
+            <!-- Books will be loaded here -->
+        </div>
+        </div>
+
+        <!-- Year End Summary Tab Content -->
+        <div class="tab-content" id="tab-content-year-end">
+            <div class="year-end-container">
+                <h2 class="year-end-title" id="year-end-title">🎊 2025 연말 결산</h2>
+                
+                <!-- Most Enjoyable Books -->
+                <div class="summary-section">
+                    <h3 class="section-title">😊 가장 재미있게 읽은 책 TOP 3</h3>
+                    <div class="book-selection-grid">
+                        <div class="book-selection-item">
+                            <label>🥇 1위</label>
+                            <div class="searchable-dropdown" id="enjoyable-1-dropdown">
+                                <input type="text" class="book-search-input" id="enjoyable-1" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="enjoyable-1-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="enjoyable-card-1"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="enjoyable-reason-1" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                        <div class="book-selection-item">
+                            <label>🥈 2위</label>
+                            <div class="searchable-dropdown" id="enjoyable-2-dropdown">
+                                <input type="text" class="book-search-input" id="enjoyable-2" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="enjoyable-2-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="enjoyable-card-2"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="enjoyable-reason-2" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                        <div class="book-selection-item">
+                            <label>🥉 3위</label>
+                            <div class="searchable-dropdown" id="enjoyable-3-dropdown">
+                                <input type="text" class="book-search-input" id="enjoyable-3" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="enjoyable-3-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="enjoyable-card-3"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="enjoyable-reason-3" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Most Difficult Books -->
+                <div class="summary-section">
+                    <h3 class="section-title">🤯 가장 읽기 어려웠던 책 TOP 3</h3>
+                    <div class="book-selection-grid">
+                        <div class="book-selection-item">
+                            <label>🥇 1위</label>
+                            <div class="searchable-dropdown" id="difficult-1-dropdown">
+                                <input type="text" class="book-search-input" id="difficult-1" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="difficult-1-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="difficult-card-1"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="difficult-reason-1" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                        <div class="book-selection-item">
+                            <label>🥈 2위</label>
+                            <div class="searchable-dropdown" id="difficult-2-dropdown">
+                                <input type="text" class="book-search-input" id="difficult-2" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="difficult-2-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="difficult-card-2"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="difficult-reason-2" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                        <div class="book-selection-item">
+                            <label>🥉 3위</label>
+                            <div class="searchable-dropdown" id="difficult-3-dropdown">
+                                <input type="text" class="book-search-input" id="difficult-3" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="difficult-3-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="difficult-card-3"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="difficult-reason-3" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Best Books by Category -->
+                <div class="summary-section">
+                    <h3 class="section-title">🏆 올해의 책</h3>
+                    <div class="book-selection-grid">
+                        <div class="book-selection-item">
+                            <label>📚 올해의 스리픽</label>
+                            <div class="searchable-dropdown" id="best-sripeak-dropdown">
+                                <input type="text" class="book-search-input" id="best-sripeak" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="best-sripeak-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="best-sripeak-card"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="best-sripeak-reason" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                        <div class="book-selection-item">
+                            <label>👥 올해의 북클럽픽</label>
+                            <div class="searchable-dropdown" id="best-bookclub-dropdown">
+                                <input type="text" class="book-search-input" id="best-bookclub" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="best-bookclub-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="best-bookclub-card"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="best-bookclub-reason" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                        <div class="book-selection-item">
+                            <label>📖 올해의 밀리픽</label>
+                            <div class="searchable-dropdown" id="best-milli-dropdown">
+                                <input type="text" class="book-search-input" id="best-milli" placeholder="책 제목 검색..." autocomplete="off">
+                                <div class="dropdown-list" id="best-milli-list"></div>
+                            </div>
+                            <div class="selected-book-card" id="best-milli-card"></div>
+                            <div class="reason-input-container">
+                                <label class="reason-label">💭 뽑힌 이유</label>
+                                <textarea class="reason-input" id="best-milli-reason" placeholder="이 책을 선택한 이유를 적어주세요..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="save-summary-section">
+                    <button class="save-summary-btn" id="save-summary-btn">💾 저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div class="modal" id="add-book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Add New Book</h2>
+                <span class="close" id="close-modal">&times;</span>
+            </div>
+            <form id="add-book-form">
+                <div class="form-group">
+                    <label for="book-title">Title *</label>
+                    <input type="text" id="book-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="book-author">Author *</label>
+                    <input type="text" id="book-author" required>
+                </div>
+                <div class="form-group">
+                    <label for="book-category">Category *</label>
+                    <select id="book-category" required>
+                        <option value="">Select Category</option>
+                        <option value="스리픽">스리픽</option>
+                        <option value="북클럽">북클럽</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="book-date">Read Date *</label>
+                    <input type="date" id="book-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="book-description">Description</label>
+                    <textarea id="book-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="book-rating">Rating (0-5) *</label>
+                    <input type="number" id="book-rating" min="0" max="5" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="book-review">Review</label>
+                    <textarea id="book-review" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="book-cover-upload">Cover Image</label>
+                    <input type="file" id="book-cover-upload" accept="image/*" onchange="uploadCoverImage(this, false)">
+                    <img id="book-cover-preview" class="cover-preview" style="display: none;" data-cover-url="">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn-submit">Add Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <div class="modal" id="edit-book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Edit Book</h2>
+                <span class="close" id="close-edit-modal">&times;</span>
+            </div>
+            <form id="edit-book-form">
+                <div class="form-group">
+                    <label for="edit-book-title">Title *</label>
+                    <input type="text" id="edit-book-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-author">Author *</label>
+                    <input type="text" id="edit-book-author" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-category">Category *</label>
+                    <select id="edit-book-category" required>
+                        <option value="">Select Category</option>
+                        <option value="스리픽">스리픽</option>
+                        <option value="북클럽">북클럽</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-date">Read Date *</label>
+                    <input type="date" id="edit-book-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-description">Description</label>
+                    <textarea id="edit-book-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-rating">Rating (0-5) *</label>
+                    <input type="number" id="edit-book-rating" min="0" max="5" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-review">Review</label>
+                    <textarea id="edit-book-review" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-book-cover-upload">Cover Image</label>
+                    <input type="file" id="edit-book-cover-upload" accept="image/*" onchange="uploadCoverImage(this, true)">
+                    <img id="edit-book-cover-preview" class="cover-preview" style="display: none;" data-cover-url="">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancel-edit-btn">Cancel</button>
+                    <button type="submit" class="btn-submit">Update Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+

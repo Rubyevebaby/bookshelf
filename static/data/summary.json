@@ -1,0 +1,44 @@
+{
+  "enjoyable": [
+    {
+      "index": 25,
+      "reason": "가재가재"
+    },
+    {
+      "index": 3,
+      "reason": ""
+    },
+    {
+      "index": 40,
+      "reason": ""
+    }
+  ],
+  "difficult": [
+    {
+      "index": 20,
+      "reason": ""
+    },
+    {
+      "index": 17,
+      "reason": ""
+    },
+    {
+      "index": 39,
+      "reason": ""
+    }
+  ],
+  "best": {
+    "sripeak": {
+      "index": 13,
+      "reason": ""
+    },
+    "bookclub": {
+      "index": 31,
+      "reason": ""
+    },
+    "milli": {
+      "index": 16,
+      "reason": ""
+    }
+  }
+}
