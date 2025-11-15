@@ -5,9 +5,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=uLUItGn_bLcC&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/12ea2ab9-f059-41dc-91d8-de6f49a04b49.jpeg"
   },
   {
     "title": "캣칭파이어",
@@ -15,9 +15,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=rSno88UwfywC&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/2fb8137a-9822-4f74-94d9-8ebf734b5f09.jpeg"
   },
   {
     "title": "모킹제이",
@@ -25,9 +25,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=CVLiM69ik3gC&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/b862c5bc-fcf9-4f2d-afd6-b5dee3b95190.jpeg"
   },
   {
     "title": "파운틴헤드 1",
@@ -35,9 +35,9 @@
     "category": "북클럽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=bsbNDAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/2650dbb7-0c6c-4d36-940a-60fd5755614a.jpeg"
   },
   {
     "title": "노래하는 새와 뱀의 발라드",
@@ -45,9 +45,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=hR_8DwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/9ae084be-79a4-4026-8e95-865730c04cba.jpeg"
   },
   {
     "title": "본컬렉터",
@@ -55,9 +55,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=QHSTQAAACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "cover_image": "/static/uploads/9ec368f3-5675-4b95-aa56-84f8a16702cc.jpg"
   },
   {
     "title": "천개의 파랑",
@@ -65,9 +65,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 2.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=UcEDEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/371b06c3-53f3-4ff8-beec-905dfe8125e5.jpeg"
   },
   {
     "title": "기록이라는 세계",
@@ -75,9 +75,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 3.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=g-s7EQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/3344af99-5a78-4056-b25f-f756effb1832.jpg"
   },
   {
     "title": "마케터의 문장",
@@ -85,9 +85,9 @@
     "category": "스리픽",
     "read_date": "2025-01-01",
     "description": "",
-    "rating": "",
+    "rating": 3.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=Ot_SDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/93b56235-eecc-42bd-baf6-f7c1d1bb69e8.jpeg"
   },
   {
     "title": "안나 까레니나 1",
@@ -95,9 +95,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=fAG-DwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/95346590-2388-450d-a675-e819ca403642.jpeg"
   },
   {
     "title": "파운틴헤드 2",
@@ -105,9 +105,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=BF_rEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/4a600f7b-1ad1-431c-85fc-df8dde0ec9c7.jpg"
   },
   {
     "title": "라쇼몬",
@@ -115,9 +115,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 3.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=AQtEBQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/8361b164-e3c2-4815-b0c0-5379b0166f0c.jpeg"
   },
   {
     "title": "인형의집",
@@ -125,9 +125,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=wXOdDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/a1f20272-da56-4582-9823-b550e2048310.jpeg"
   },
   {
     "title": "모순",
@@ -135,9 +135,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 4.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=mFowEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/13cb58f6-b203-4092-9c84-1d7afdebf6e4.jpeg"
   },
   {
     "title": "홍학의 자리",
@@ -145,9 +145,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=nFI5EAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/79eca8b7-bb0a-4f1a-9153-521c6173386b.jpeg"
   },
   {
     "title": "안나 까레니나 2",
@@ -155,9 +155,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 4.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=igG-DwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/766b93af-6a00-4947-9cbb-2f53da1f3c8e.jpeg"
   },
   {
     "title": "콘클라베",
@@ -165,9 +165,9 @@
     "category": "스리픽",
     "read_date": "2025-03-01",
     "description": "",
-    "rating": "",
+    "rating": 0.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=BxF0PgAACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "cover_image": "/static/uploads/018ace6c-362c-4eb4-bf1c-dc9ef98aab39.jpeg"
   },
   {
     "title": "미스빌리프",
@@ -185,9 +185,9 @@
     "category": "스리픽",
     "read_date": "2025-03-01",
     "description": "",
-    "rating": "",
+    "rating": 4.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=LOMeEQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/85a79f05-fbce-4dca-9f9f-ec398d065469.jpeg"
   },
   {
     "title": "이반 일리치의 죽음",
@@ -195,9 +195,9 @@
     "category": "스리픽",
     "read_date": "2025-04-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=IKHsEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/47f67b8e-91c9-4632-8350-15755e4124e3.jpeg"
   },
   {
     "title": "라마와의 랑데부",
@@ -205,9 +205,9 @@
     "category": "북클럽",
     "read_date": "2025-04-01",
     "description": "",
-    "rating": "",
+    "rating": 2.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=xYNqDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/7fb93c8b-9c52-48ac-9b90-1a893650eb6a.jpg"
   },
   {
     "title": "나목",
@@ -215,19 +215,19 @@
     "category": "스리픽",
     "read_date": "2025-04-01",
     "description": "",
-    "rating": "",
+    "rating": 4.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=nW2wAwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/9831833f-4228-499e-8f4e-c6e13bbd19c3.jpg"
   },
   {
     "title": "숨결이 바람될 때",
-    "author": "폴칼라니티",
+    "author": "폴 칼라니티",
     "category": "스리픽",
     "read_date": "2025-04-01",
     "description": "",
-    "rating": "",
+    "rating": 0.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=_lpUDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/9bb2986e-321b-400c-b487-eee262e6be62.jpeg"
   },
   {
     "title": "오후 네시",
@@ -235,9 +235,9 @@
     "category": "스리픽",
     "read_date": "2025-04-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=x9o9DwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/a935bcdf-e909-4873-a625-ca81f6f7f204.jpeg"
   },
   {
     "title": "거울 앞에서 너무 많은 시간을 보냈다",
@@ -245,9 +245,9 @@
     "category": "스리픽",
     "read_date": "2025-02-01",
     "description": "",
-    "rating": "",
+    "rating": 2.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=duI7DwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/4f3b6758-e653-4cbb-a359-f06925a97137.jpeg"
   },
   {
     "title": "가재가 노래하는 곳",
@@ -255,9 +255,9 @@
     "category": "스리픽",
     "read_date": "2025-04-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=UGgqxgEACAAJ&printsec=frontcover&img=1&zoom=0&source=gbs_api"
+    "cover_image": "/static/uploads/f48081bb-e02d-4da8-b354-1b85659bdf5e.jpeg"
   },
   {
     "title": "인구는 내 미래를 어떻게 바꾸는가",
@@ -265,9 +265,9 @@
     "category": "북클럽",
     "read_date": "2025-06-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=bBRMEQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/9830927e-e66e-4c60-a758-411afed0fa6c.jpg"
   },
   {
     "title": "파리대왕",
@@ -305,9 +305,9 @@
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=ec6aAAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 4.5,
+    "review": "아무것도 모르는 어린 아이들이 나치즘에 희생당하는 슬픈 이야기...읽기 난이도 <하>여서 술술 읽혀지는 건 좋았음. 중학생 친구들에게 추천👍🏻",
+    "cover_image": "/static/uploads/d7eccd1b-a1b6-4bc2-8c0f-f015fd6a32d6.jpeg"
   },
   {
     "title": "인간실격",
@@ -315,9 +315,9 @@
     "category": "북클럽",
     "read_date": "2025-05-01",
     "description": "",
-    "rating": "",
+    "rating": 4.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=UhB2EQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/32a6369a-be8e-4342-be11-4229b9faa6dd.jpeg"
   },
   {
     "title": "네버 라이",
@@ -325,9 +325,9 @@
     "category": "스리픽",
     "read_date": "2025-06-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=nvhQEQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 4.5,
+    "review": "쇼츠를 3시간 본 것 같은 도파민! 한번 시작하면 끝까지 쭉 달려야 하니 밤에 읽기 시작하지 말 것",
+    "cover_image": "/static/uploads/aee659fd-21b4-47fc-9d67-c741cbcde9a3.jpeg"
   },
   {
     "title": "이갈리아의 딸들",
@@ -335,9 +335,9 @@
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=tG6vDQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 5.0,
+    "review": "2017년 고급 읽기와 글쓰기 시간에 교수님과 함께 읽었던 책. 이 시대에 이런 책을? 이라는 생각이 들만큼 파격적인 내용. 통쾌하면서도 씁쓸한 이야기.",
+    "cover_image": "/static/uploads/d10e108a-dee4-49f6-a35d-6f4cc0f4a396.jpg"
   },
   {
     "title": "곰탕 1",
@@ -395,9 +395,9 @@
     "category": "스리픽",
     "read_date": "2025-07-01",
     "description": "",
-    "rating": "",
+    "rating": 4.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=hTg-EQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/47c6b729-e2ff-4ce5-ae2c-ba7f89d285b8.jpeg"
   },
   {
     "title": "달과 6펜스",
@@ -405,9 +405,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
+    "rating": 5.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=OOLOegOGhCEC&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/3b730550-0a0f-4f0e-a2d2-fe0eddc7039d.jpg"
   },
   {
     "title": "꿈에대하여",
@@ -415,9 +415,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=TFUSEQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 3.0,
+    "review": "꿈에 대해 관심이 많은 작가의 소소한 생각들을 들을 수 있어서 좋았다. 친구랑 이야기 하는 느낌으로 쉽게 읽을 수 있던 책. 꿈 메모를 한다던 채윤이가 생각났다.",
+    "cover_image": "/static/uploads/06829b24-a167-43be-b827-2970f62fc69f.jpg"
   },
   {
     "title": "히든 픽처스",
@@ -435,9 +435,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=IkVTEQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 5.0,
+    "review": "\"그날 아침은 리즈번가에 남은 마지막 딸이 자살할 차례였다.\"로 시작하는 충격적인 내용의 책. 어떻게 독서를 시작하지 않을 수 있겠어?!",
+    "cover_image": "/static/uploads/15b79cfb-7638-4905-ae13-df36d3f0b5d6.jpeg"
   },
   {
     "title": "노르웨이의 숲",
@@ -475,9 +475,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=DxS2EAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 3.0,
+    "review": "그땐 그랬지, 나한테 이런 일들이 있었지, 하는 담담한 이야기. 이제는 더이상 만날 수 없는 인연, 그리고 굳이 물어보지 않아도 되는 어렴풋한 과거를 뒤로하는 이야기.",
+    "cover_image": "/static/uploads/eb06d048-3374-4875-a86c-05b9920b43b6.jpeg"
   },
   {
     "title": "삼체1: 삼체문제",
@@ -495,9 +495,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=D7BQEQAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 3.5,
+    "review": "\"잊을 수는 없는 거니?\"\n\"네.\"\n이 짧은 대화가 강렬히 남았다.",
+    "cover_image": "/static/uploads/43e27527-fde8-4e3a-b95b-4a229588d177.jpg"
   },
   {
     "title": "작은 땅의 야수들",
@@ -505,9 +505,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
+    "rating": 3.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=oO3fEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/08bcb44e-da00-459a-9d65-ce092897b523.jpg"
   },
   {
     "title": "데미안",
@@ -515,9 +515,9 @@
     "category": "스리픽",
     "read_date": "2025-09-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=y3EMDgAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 3.5,
+    "review": "여러 번 읽어도 새로운 책. \"눈을 감아, 싱클레어.\"로 영업되어 시작된 데미안과의 사투. 이 책을 이해하기위해 또다른 노력이 더 필요할 듯🥲",
+    "cover_image": "/static/uploads/bf4ab569-4bfd-48f9-bfc0-18c195b3bfc9.jpg"
   },
   {
     "title": "아Q정전",
@@ -525,9 +525,9 @@
     "category": "스리픽",
     "read_date": "2025-10-01",
     "description": "",
-    "rating": "",
+    "rating": 3.5,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=H20aCgAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/3e34b8af-9a13-4c5f-b31e-083df4943ca0.jpg"
   },
   {
     "title": "삼체2: 암흑의 숲",
@@ -575,8 +575,8 @@
     "category": "스리픽",
     "read_date": "2025-11-01",
     "description": "",
-    "rating": "",
+    "rating": 0.0,
     "review": "",
-    "cover_image": "https://books.google.com/books/content?id=q82pEAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "cover_image": "/static/uploads/16af6d4e-e71a-41c2-80a3-0cdff69f6d30.jpg"
   }
 ]
