@@ -1,5 +1,11 @@
 // Load books and stats on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // 정적 모드일 때 UI 업데이트
+    if (STATIC_MODE) {
+        showReadOnlyBanner();
+        disableWriteFeatures();
+    }
+    
     loadStats();
     loadBooks();
     
@@ -51,10 +57,18 @@ function updateYearDisplay() {
 async function loadStats() {
     updateYearDisplay();
     try {
-        const response = await fetch('/api/stats');
-        const data = await response.json();
-        document.getElementById('current-date').textContent = data.current_date;
-        document.getElementById('year-count').textContent = data.current_year_count;
+        if (STATIC_MODE) {
+            // 정적 모드: JSON 파일에서 로드하거나 클라이언트에서 계산
+            const data = await loadStaticStats();
+            // 올해 읽은 책 수는 loadBooks에서 계산됨
+            document.getElementById('current-date').textContent = data.current_date;
+            // year-count는 loadBooks 후에 업데이트됨
+        } else {
+            const response = await fetch(getApiUrl('api/stats'));
+            const data = await response.json();
+            document.getElementById('current-date').textContent = data.current_date;
+            document.getElementById('year-count').textContent = data.current_year_count;
+        }
     } catch (error) {
         console.error('Error loading stats:', error);
     }
@@ -68,14 +82,26 @@ async function loadBooks() {
         const sort = document.getElementById('sort-select').value;
         const order = document.getElementById('order-select').value;
         
-        const params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (category) params.append('category', category);
-        if (sort) params.append('sort', sort);
-        if (order) params.append('order', order);
-        
-        const response = await fetch(`/api/books?${params.toString()}`);
-        const books = await response.json();
+        let books;
+        if (STATIC_MODE) {
+            // 정적 모드: JSON 파일에서 로드하고 클라이언트에서 필터링/정렬
+            books = await loadStaticBooks();
+            books = filterAndSortBooks(books, search, category, sort, order);
+            
+            // 올해 읽은 책 수 계산
+            const currentYearBooks = filterCurrentYearBooks(await loadStaticBooks());
+            document.getElementById('year-count').textContent = currentYearBooks.length;
+        } else {
+            // Flask 모드: 서버에서 필터링/정렬
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (category) params.append('category', category);
+            if (sort) params.append('sort', sort);
+            if (order) params.append('order', order);
+            
+            const response = await fetch(`${getApiUrl('api/books')}?${params.toString()}`);
+            books = await response.json();
+        }
         
         displayBooks(books);
         loadStats(); // Reload stats after loading books
@@ -113,7 +139,7 @@ function displayBooks(books) {
                 <div class="book-date">Read on: ${formatDate(book.read_date)}</div>
                 ${book.description ? `<div class="book-description">${escapeHtml(book.description)}</div>` : ''}
                 ${book.review ? `<div class="book-review">"${escapeHtml(book.review)}"</div>` : ''}
-                <button class="edit-book-btn" onclick="openEditModal(${book._index !== undefined ? book._index : index})">Edit</button>
+                ${!STATIC_MODE ? `<button class="edit-book-btn" onclick="openEditModal(${book._index !== undefined ? book._index : index})">Edit</button>` : ''}
             </div>
         </div>
     `).join('');
@@ -174,7 +200,7 @@ async function loadBookCovers(books) {
 async function loadBookInfoFromAPI(img, title, loadingDiv, authorElement) {
     try {
         const params = new URLSearchParams({ title: title });
-        const response = await fetch(`/api/book-info?${params.toString()}`);
+        const response = await fetch(`${getApiUrl('api/book-info')}?${params.toString()}`);
         const data = await response.json();
         
         console.log('Book info API response for', title, ':', data);
@@ -215,7 +241,7 @@ async function loadAuthorFromAPI(title, authorElement) {
     
     try {
         const params = new URLSearchParams({ title: title });
-        const response = await fetch(`/api/book-info?${params.toString()}`);
+        const response = await fetch(`${getApiUrl('api/book-info')}?${params.toString()}`);
         const data = await response.json();
         
         if (data.author && data.author.trim() !== '') {
@@ -235,7 +261,7 @@ async function loadCoverFromAPI(img, title, author, loadingDiv, authorElement) {
             params.append('author', author);
         }
         
-        const response = await fetch(`/api/cover?${params.toString()}`);
+        const response = await fetch(`${getApiUrl('api/cover')}?${params.toString()}`);
         const data = await response.json();
         
         console.log('Cover API response for', title, ':', data);
@@ -377,7 +403,12 @@ async function addBook(event) {
     };
     
     try {
-        const response = await fetch('/api/books', {
+        if (STATIC_MODE) {
+            alert('정적 모드에서는 책을 추가할 수 없습니다.');
+            return;
+        }
+        
+        const response = await fetch(getApiUrl('api/books'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -400,8 +431,13 @@ async function addBook(event) {
 
 // Open edit modal
 async function openEditModal(index) {
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 책을 수정할 수 없습니다.');
+        return;
+    }
+    
     try {
-        const response = await fetch(`/api/books/${index}`);
+        const response = await fetch(`${getApiUrl('api/books')}/${index}`);
         const book = await response.json();
         
         // Populate form
@@ -462,7 +498,12 @@ async function updateBook(event) {
     };
     
     try {
-        const response = await fetch(`/api/books/${index}`, {
+        if (STATIC_MODE) {
+            alert('정적 모드에서는 책을 수정할 수 없습니다.');
+            return;
+        }
+        
+        const response = await fetch(`${getApiUrl('api/books')}/${index}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -495,7 +536,12 @@ async function uploadCoverImage(input, isEdit = false) {
     const preview = document.getElementById(previewId);
     
     try {
-        const response = await fetch('/api/upload-cover', {
+        if (STATIC_MODE) {
+            alert('정적 모드에서는 이미지를 업로드할 수 없습니다.');
+            return;
+        }
+        
+        const response = await fetch(getApiUrl('api/upload-cover'), {
             method: 'POST',
             body: formData
         });
@@ -545,8 +591,14 @@ let allYearBooks = [];
 async function initializeYearEndSummary() {
     // Load current year books and populate dropdowns
     try {
-        const response = await fetch('/api/books/current-year');
-        allYearBooks = await response.json();
+        if (STATIC_MODE) {
+            // 정적 모드: JSON 파일에서 로드하고 클라이언트에서 필터링
+            const allBooks = await loadStaticBooks();
+            allYearBooks = filterCurrentYearBooks(allBooks);
+        } else {
+            const response = await fetch(getApiUrl('api/books/current-year'));
+            allYearBooks = await response.json();
+        }
         
         // Initialize all searchable dropdowns
         const inputIds = [
@@ -793,7 +845,7 @@ async function loadAuthorForMiniCard(title, authorElement) {
     
     try {
         const params = new URLSearchParams({ title: title });
-        const response = await fetch(`/api/book-info?${params.toString()}`);
+        const response = await fetch(`${getApiUrl('api/book-info')}?${params.toString()}`);
         const data = await response.json();
         
         if (data.author && data.author.trim() !== '') {
@@ -835,7 +887,7 @@ async function loadCoverFromAPIForMini(img, title, author) {
             params.append('author', author);
         }
         
-        const response = await fetch(`/api/cover?${params.toString()}`);
+        const response = await fetch(`${getApiUrl('api/cover')}?${params.toString()}`);
         const data = await response.json();
         
         if (data.cover_url && data.cover_url.trim() !== '') {
@@ -855,12 +907,22 @@ async function loadYearEndSummary() {
     try {
         // Ensure books are loaded
         if (allYearBooks.length === 0) {
-            const booksResponse = await fetch('/api/books/current-year');
-            allYearBooks = await booksResponse.json();
+            if (STATIC_MODE) {
+                const allBooks = await loadStaticBooks();
+                allYearBooks = filterCurrentYearBooks(allBooks);
+            } else {
+                const booksResponse = await fetch(getApiUrl('api/books/current-year'));
+                allYearBooks = await booksResponse.json();
+            }
         }
         
-        const response = await fetch('/api/year-end-summary');
-        const summary = await response.json();
+        let summary;
+        if (STATIC_MODE) {
+            summary = await loadStaticSummary();
+        } else {
+            const response = await fetch(getApiUrl('api/year-end-summary'));
+            summary = await response.json();
+        }
         
         if (summary && Object.keys(summary).length > 0) {
             // Set selected books
@@ -968,6 +1030,33 @@ async function loadYearEndSummary() {
     }
 }
 
+// Show read-only banner
+function showReadOnlyBanner() {
+    const container = document.querySelector('.container');
+    if (!container) return;
+    
+    const banner = document.createElement('div');
+    banner.className = 'read-only-banner';
+    banner.innerHTML = '📖 읽기 전용 모드 - GitHub Pages에서 실행 중입니다. 데이터 수정은 localhost에서만 가능합니다.';
+    container.insertBefore(banner, container.firstChild);
+}
+
+// Disable write features
+function disableWriteFeatures() {
+    // Hide or disable Add Book button
+    const addBookBtn = document.getElementById('add-book-btn');
+    if (addBookBtn) {
+        addBookBtn.style.display = 'none';
+    }
+    
+    // Hide Edit buttons (will be handled in displayBooks)
+    // Hide Save Summary button
+    const saveSummaryBtn = document.getElementById('save-summary-btn');
+    if (saveSummaryBtn) {
+        saveSummaryBtn.style.display = 'none';
+    }
+}
+
 // Save year-end summary
 async function saveYearEndSummary() {
     const summary = {
@@ -1053,7 +1142,12 @@ async function saveYearEndSummary() {
     }
     
     try {
-        const response = await fetch('/api/year-end-summary', {
+        if (STATIC_MODE) {
+            alert('정적 모드에서는 연말 결산을 저장할 수 없습니다.');
+            return;
+        }
+        
+        const response = await fetch(getApiUrl('api/year-end-summary'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

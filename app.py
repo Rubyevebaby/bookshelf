@@ -506,6 +506,47 @@ def get_current_year_books():
     
     return jsonify(current_year_books)
 
+@app.route('/api/export-static', methods=['POST'])
+def export_static_data():
+    """Export all data to static JSON files for GitHub Pages"""
+    try:
+        # Load books from CSV
+        books = load_books()
+        
+        # Remove internal fields
+        books_clean = []
+        for book in books:
+            book_copy = book.copy()
+            book_copy.pop('_index', None)
+            books_clean.append(book_copy)
+        
+        # Save to static/data/books.json
+        os.makedirs('static/data', exist_ok=True)
+        with open('static/data/books.json', 'w', encoding='utf-8') as f:
+            json.dump(books_clean, f, ensure_ascii=False, indent=2)
+        
+        # Export stats
+        current_year_count = get_current_year_count(books)
+        current_date = datetime.now().strftime('%Y년 %m월 %d일')
+        stats = {
+            'current_date': current_date,
+            'current_year_count': current_year_count
+        }
+        with open('static/data/stats.json', 'w', encoding='utf-8') as f:
+            json.dump(stats, f, ensure_ascii=False, indent=2)
+        
+        # Export year-end summary
+        summary = load_summary()
+        with open('static/data/summary.json', 'w', encoding='utf-8') as f:
+            json.dump(summary, f, ensure_ascii=False, indent=2)
+        
+        return jsonify({'success': True, 'message': 'Static data exported successfully'})
+    except Exception as e:
+        print(f"Error exporting static data: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 

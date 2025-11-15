@@ -17,6 +17,18 @@ body {
     margin: 0 auto;
 }
 
+/* Read-only banner */
+.read-only-banner {
+    background: rgba(255, 193, 7, 0.2);
+    border: 1px solid rgba(255, 193, 7, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ffc107;
+    font-weight: 500;
+}
+
 /* Header Styles */
 .header {
     background: rgba(255, 255, 255, 0.05);
