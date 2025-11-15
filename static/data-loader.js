@@ -2,10 +2,8 @@
 async function loadStaticBooks() {
     try {
         // Base path를 고려한 경로 사용
-        let basePath = '';
-        if (typeof BASE_PATH !== 'undefined') {
-            basePath = BASE_PATH;
-        } else {
+        let basePath = window.BASE_PATH || (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '');
+        if (!basePath) {
             // BASE_PATH가 없으면 직접 계산
             const path = window.location.pathname;
             if (path !== '/' && path !== '') {
@@ -45,10 +43,8 @@ async function loadStaticBooks() {
 async function loadStaticStats() {
     try {
         // Base path를 고려한 경로 사용
-        let basePath = '';
-        if (typeof BASE_PATH !== 'undefined') {
-            basePath = BASE_PATH;
-        } else {
+        let basePath = window.BASE_PATH || (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '');
+        if (!basePath) {
             // BASE_PATH가 없으면 직접 계산
             const path = window.location.pathname;
             if (path !== '/' && path !== '') {
@@ -77,10 +73,8 @@ async function loadStaticStats() {
 async function loadStaticSummary() {
     try {
         // Base path를 고려한 경로 사용
-        let basePath = '';
-        if (typeof BASE_PATH !== 'undefined') {
-            basePath = BASE_PATH;
-        } else {
+        let basePath = window.BASE_PATH || (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '');
+        if (!basePath) {
             // BASE_PATH가 없으면 직접 계산
             const path = window.location.pathname;
             if (path !== '/' && path !== '') {

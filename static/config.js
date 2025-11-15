@@ -23,6 +23,9 @@ function getBasePath() {
 }
 
 const BASE_PATH = getBasePath();
+// 전역 변수로도 설정 (다른 스크립트에서 접근 가능하도록)
+window.BASE_PATH = BASE_PATH;
+console.log('BASE_PATH detected:', BASE_PATH);
 
 // API URL 헬퍼 함수
 function getApiUrl(endpoint) {
