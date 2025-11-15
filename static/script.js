@@ -629,16 +629,17 @@ async function initializeYearEndSummary() {
             allYearBooks = await response.json();
         }
         
-        // Initialize all searchable dropdowns
-        const inputIds = [
-            'enjoyable-1', 'enjoyable-2', 'enjoyable-3',
-            'difficult-1', 'difficult-2', 'difficult-3',
-            'best-sripeak', 'best-bookclub', 'best-milli'
-        ];
-        
-        inputIds.forEach(inputId => {
-            initializeSearchableDropdown(inputId, allYearBooks);
-        });
+        if (!STATIC_MODE) {
+            const inputIds = [
+                'enjoyable-1', 'enjoyable-2', 'enjoyable-3',
+                'difficult-1', 'difficult-2', 'difficult-3',
+                'best-sripeak', 'best-bookclub', 'best-milli'
+            ];
+            
+            inputIds.forEach(inputId => {
+                initializeSearchableDropdown(inputId, allYearBooks);
+            });
+        }
     } catch (error) {
         console.error('Error loading current year books:', error);
     }
@@ -815,11 +816,9 @@ function handleBookSelection(inputId, bookIndex, books, reason = '') {
             
             displaySelectedBook(card, book, reason);
             
-            // Update reason display when reason input changes
-            if (reasonInputId) {
+            if (!STATIC_MODE && reasonInputId) {
                 const reasonInput = document.getElementById(reasonInputId);
                 if (reasonInput) {
-                    // Remove existing listener to avoid duplicates
                     const newReasonInput = reasonInput.cloneNode(true);
                     reasonInput.parentNode.replaceChild(newReasonInput, reasonInput);
                     
@@ -839,6 +838,8 @@ function displaySelectedBook(cardElement, book, reason = '') {
         return;
     }
     
+    const showReason = !STATIC_MODE && reason && reason.trim() !== '';
+    
     cardElement.innerHTML = `
         <div class="selected-book-mini-card">
             <div class="mini-cover-container">
@@ -850,7 +851,7 @@ function displaySelectedBook(cardElement, book, reason = '') {
             <div class="mini-book-info">
                 <div class="mini-title">${escapeHtml(book.title || 'Untitled')}</div>
                 <div class="mini-author" id="mini-author-${Date.now()}">${escapeHtml(book.author || '') || '저자 정보 로딩 중...'}</div>
-                ${reason ? `<div class="mini-reason">💭 ${escapeHtml(reason)}</div>` : ''}
+                ${showReason ? `<div class="mini-reason">💭 ${escapeHtml(reason)}</div>` : ''}
             </div>
         </div>
     `;
@@ -895,7 +896,13 @@ async function loadMiniCover(img, book) {
     const author = book.author;
     
     if (coverImage && coverImage.trim() !== '') {
-        img.src = coverImage;
+        const resolved = resolveCoverImageUrl(coverImage);
+        if (resolved) {
+            img.src = resolved;
+        } else {
+            loadCoverFromAPIForMini(img, title, author);
+            return;
+        }
         img.style.display = 'block';
         img.onerror = function() {
             loadCoverFromAPIForMini(img, title, author);
@@ -1084,6 +1091,16 @@ function disableWriteFeatures() {
     if (saveSummaryBtn) {
         saveSummaryBtn.style.display = 'none';
     }
+    
+    // Hide dropdown inputs for year-end summary
+    document.querySelectorAll('.searchable-dropdown').forEach(dropdown => {
+        dropdown.style.display = 'none';
+    });
+    
+    // Hide reason input areas (read-only mode)
+    document.querySelectorAll('.reason-input-container').forEach(container => {
+        container.style.display = 'none';
+    });
 }
 
 // Save year-end summary
