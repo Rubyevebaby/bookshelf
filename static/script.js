@@ -85,11 +85,11 @@ async function loadBooks() {
         let books;
         if (STATIC_MODE) {
             // 정적 모드: JSON 파일에서 로드하고 클라이언트에서 필터링/정렬
-            books = await loadStaticBooks();
-            books = filterAndSortBooks(books, search, category, sort, order);
+            const allBooks = await loadStaticBooks();
+            books = filterAndSortBooks(allBooks, search, category, sort, order);
             
             // 올해 읽은 책 수 계산
-            const currentYearBooks = filterCurrentYearBooks(await loadStaticBooks());
+            const currentYearBooks = filterCurrentYearBooks(allBooks);
             document.getElementById('year-count').textContent = currentYearBooks.length;
         } else {
             // Flask 모드: 서버에서 필터링/정렬
