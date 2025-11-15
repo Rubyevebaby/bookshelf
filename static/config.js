@@ -7,9 +7,17 @@ const STATIC_MODE = window.location.hostname !== 'localhost' &&
 function getBasePath() {
     const path = window.location.pathname;
     // /bookshelf/ 같은 subdirectory가 있는지 확인
-    const match = path.match(/^(\/[^\/]+\/)/);
-    if (match && match[1] !== '/') {
-        return match[1];
+    // 예: /bookshelf/ -> /bookshelf/
+    // 예: /bookshelf -> /bookshelf/
+    // 예: / -> (빈 문자열)
+    if (path === '/' || path === '') {
+        return '';
+    }
+    // pathname이 /bookshelf/ 또는 /bookshelf 같은 형태인지 확인
+    const parts = path.split('/').filter(p => p);
+    if (parts.length > 0) {
+        // 첫 번째 경로가 있으면 base path로 사용
+        return `/${parts[0]}/`;
     }
     return '';
 }
