@@ -513,11 +513,17 @@ def export_static_data():
         # Load books from CSV
         books = load_books()
         
-        # Remove internal fields
+        # Remove internal fields and unwanted fields
         books_clean = []
+        unwanted_fields = ['_index', 'Unnamed: 7', 'Unnamed: 8', '최상단에 지금 날짜와 (연월일) + 올해부터 읽은 책 권수를 하이라이트 해줘야함']
+        
         for book in books:
-            book_copy = book.copy()
-            book_copy.pop('_index', None)
+            book_copy = {}
+            # Only keep valid book fields
+            valid_fields = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image']
+            for field in valid_fields:
+                if field in book:
+                    book_copy[field] = book[field]
             books_clean.append(book_copy)
         
         # Save to static/data/books.json

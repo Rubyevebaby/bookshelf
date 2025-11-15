@@ -5,8 +5,20 @@ async function loadStaticBooks() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const books = await response.json();
-        return books;
+        const data = await response.json();
+        
+        // 배열인 경우 그대로 반환
+        if (Array.isArray(data)) {
+            return data;
+        }
+        
+        // 객체인 경우 books 필드 확인
+        if (data && typeof data === 'object' && 'books' in data) {
+            return data.books || [];
+        }
+        
+        // 그 외의 경우 빈 배열 반환
+        return [];
     } catch (error) {
         console.error('Error loading static books:', error);
         return [];
