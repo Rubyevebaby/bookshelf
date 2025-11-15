@@ -20,6 +20,30 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def enrich_book_metadata(book, metadata_cache=None):
+    """Fill missing author/cover_image fields using external book APIs."""
+    if not book:
+        return book
+    title = str(book.get('title', '')).strip()
+    if not title:
+        return book
+    metadata_cache = metadata_cache if metadata_cache is not None else {}
+    author_value = str(book.get('author', '') or '').strip()
+    cover_value = str(book.get('cover_image', '') or '').strip()
+    needs_author = author_value == ''
+    needs_cover = cover_value == ''
+    if not (needs_author or needs_cover):
+        return book
+    cache_key = (title.lower(), author_value.lower())
+    if cache_key not in metadata_cache:
+        metadata_cache[cache_key] = get_book_info(title, author_value)
+    info = metadata_cache.get(cache_key, {})
+    if needs_author and info.get('author'):
+        book['author'] = info['author']
+    if needs_cover and info.get('cover_url'):
+        book['cover_image'] = info['cover_url']
+    return book
+
 def parse_korean_date(date_str):
     """Parse Korean date format like '2025 1월' to datetime"""
     if not date_str or pd.isna(date_str):
@@ -512,6 +536,7 @@ def export_static_data():
     try:
         # Load books from CSV
         books = load_books()
+        metadata_cache = {}
         
         # Remove internal fields and unwanted fields
         books_clean = []
@@ -524,6 +549,8 @@ def export_static_data():
             for field in valid_fields:
                 if field in book:
                     book_copy[field] = book[field]
+            # Fill metadata such as author and cover image before saving
+            enrich_book_metadata(book_copy, metadata_cache)
             books_clean.append(book_copy)
         
         # Save to static/data/books.json
@@ -555,4 +582,3 @@ def export_static_data():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-

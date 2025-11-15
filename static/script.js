@@ -39,6 +39,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function resolveCoverImageUrl(coverImage) {
+    if (!coverImage) return '';
+    const trimmed = coverImage.trim();
+    if (trimmed === '') return '';
+    const lower = trimmed.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://') || trimmed.startsWith('data:')) {
+        return trimmed;
+    }
+    let normalized = trimmed;
+    if (normalized.startsWith('./')) {
+        normalized = normalized.substring(2);
+    }
+    normalized = normalized.replace(/^\/+/, '');
+    if (normalized === '') {
+        return '';
+    }
+    if (STATIC_MODE) {
+        return `${BASE_PATH}${normalized}`;
+    }
+    return `/${normalized}`;
+}
+
 // Update year display
 function updateYearDisplay() {
     const currentYear = new Date().getFullYear();
@@ -162,7 +184,14 @@ async function loadBookCovers(books) {
         
         // Check if there's a manually uploaded cover image (must be non-empty)
         if (coverImage && coverImage.trim() !== '') {
-            img.src = coverImage;
+            const resolvedCoverUrl = resolveCoverImageUrl(coverImage);
+            if (resolvedCoverUrl) {
+                img.src = resolvedCoverUrl;
+            } else {
+                // If normalization fails, fall back to API
+                loadBookInfoFromAPI(img, title, loadingDiv, authorElement);
+                return;
+            }
             img.onload = function() {
                 if (loadingDiv) loadingDiv.style.display = 'none';
                 this.style.display = 'block';
@@ -1167,4 +1196,3 @@ async function saveYearEndSummary() {
         alert('저장 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
-
