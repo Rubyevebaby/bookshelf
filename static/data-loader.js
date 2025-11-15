@@ -21,14 +21,24 @@ async function loadStaticBooks() {
         }
         const data = await response.json();
         
-        // 배열인 경우 그대로 반환
+        // 배열인 경우 인덱스를 부여해 반환
         if (Array.isArray(data)) {
-            return data;
+            return data.map((book, index) => {
+                if (book && typeof book === 'object') {
+                    return { ...book, _index: book._index !== undefined ? book._index : index };
+                }
+                return book;
+            });
         }
         
         // 객체인 경우 books 필드 확인
         if (data && typeof data === 'object' && 'books' in data) {
-            return data.books || [];
+            return (data.books || []).map((book, index) => {
+                if (book && typeof book === 'object') {
+                    return { ...book, _index: book._index !== undefined ? book._index : index };
+                }
+                return book;
+            });
         }
         
         // 그 외의 경우 빈 배열 반환
@@ -193,4 +203,3 @@ function filterCurrentYearBooks(books) {
         return date.getFullYear() === currentYear;
     });
 }
-
