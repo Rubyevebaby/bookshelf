@@ -291,13 +291,13 @@
   },
   {
     "title": "있으려나 서점",
-    "author": "고스트북스, 고요서사, 공상온도, 달팽이책방, 땡스북스, 문우당서림, 삼일문고, 새한서점, 서울셀렉션, 어쩌다책방, 영화책방35mm, 완벽한날들, 위트앤시니컬, 인덱스, 제주사슴책방, 지금의세상, 책방심다, 통문관",
+    "author": "요시타케 신스케",
     "category": "스리픽",
     "read_date": "2025-07-01",
-    "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=E8LsDwAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "description": "아기자기한 그림과 어린 시절로 돌아간 듯한 몽글몽글한 이야기. 책과 서점 자체를 좋아하는 사람이 쓴 상상력 풍부한 귀여운 책.",
+    "rating": 3.5,
+    "review": "그래 가끔은 이렇게 귀여운 책도 읽어줘야지! 위그든 씨의 사탕가게 이야기처럼 다 읽고나면 기분이 좋아지는 책이었다.",
+    "cover_image": "/static/uploads/9788934981237.jpg"
   },
   {
     "title": "줄무늬 파자마를 입은 소년",
@@ -465,9 +465,9 @@
     "category": "스리픽",
     "read_date": "2025-08-01",
     "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=kWY4EAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "rating": 4.0,
+    "review": "텍스트로 보는 영화 한 편! 너무 재밌어서 앉은 자리에서 뚝딱 읽었다. 유튜브 왜 봐? 이거 읽으면 되는데!",
+    "cover_image": "/static/uploads/a601ae4f-8718-495d-a584-b0867ad4357b.jpg"
   },
   {
     "title": "두고온 여름",
@@ -544,10 +544,10 @@
     "author": "김혜정",
     "category": "스리픽",
     "read_date": "2025-10-01",
-    "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=28T3EAAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "description": "튀르키예 시린제 마을에서 만난 아이샤가 읽고있다고 했던 책",
+    "rating": 2.5,
+    "review": "예전에 읽었던 <달러구트 꿈 백화점>이 생각나는 책. 아동 도서 같은 느낌이어서 읽다가 흥미가 떨어졌지만 끝까지 읽었다!",
+    "cover_image": "/static/uploads/e59dd4ab-f7f8-43a2-b2b3-f12d81aa9df0.jpeg"
   },
   {
     "title": "배를 엮다",
@@ -564,10 +564,10 @@
     "author": "하퍼 리 Harper Lee",
     "category": "스리픽",
     "read_date": "2025-11-01",
-    "description": "",
-    "rating": "",
-    "review": "",
-    "cover_image": "https://books.google.com/books/content?id=ZTqNCgAAQBAJ&printsec=frontcover&img=1&zoom=0&edge=curl&source=gbs_api"
+    "description": "신념을 지키는 아버지의 모습을 아이의 시선으로 담은 이야기. ",
+    "rating": 4.0,
+    "review": "어렵지 않게 즐겁게 읽은 책. 바르다고 생각하는 방향으로 꿋꿋이 나아가는 일은 언제나 어려운 일이다.",
+    "cover_image": "/static/uploads/5b0136dc-525e-42b7-b462-e6a9da8f9983.jpeg"
   },
   {
     "title": "사탄탱고",
