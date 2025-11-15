@@ -37,7 +37,7 @@ http://localhost:5000
 
 ## Data Format
 
-The application reads from `books.csv` with the following columns:
+The application reads from `static/data/books.csv` with the following columns:
 - `title`: Book title
 - `author`: Author name
 - `category`: Category (스리픽 or 북클럽)
@@ -47,12 +47,13 @@ The application reads from `books.csv` with the following columns:
 - `review`: One-line review
 - `cover_image`: Optional URL or uploaded image path
 
-When exporting for GitHub Pages, these same columns are also saved into `static/data/books.csv`.  
-This CSV mirrors `static/data/books.json`, so you can manage the bookshelf in a spreadsheet and rely on the export step to keep both formats in sync.
+The CSV file under `static/data/books.csv` is the single source of truth.  
+The Flask app reads/writes directly to this file, and GitHub Pages now loads it too.  
+When you need the JSON artifacts (for backup or tooling), use the “Export for GitHub Pages” button to regenerate `static/data/books.json` and `stats.json` from the CSV.
 ## Usage
 
 - **Search**: Type in the search box to filter books
 - **Filter**: Select a category from the dropdown
 - **Sort**: Choose sorting option and order (ascending/descending)
 - **Add Book**: Click "Add New Book" button to add a new entry
-- All changes are automatically saved to `books.csv`
+- All changes are automatically saved to `static/data/books.csv`

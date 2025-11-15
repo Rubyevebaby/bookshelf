@@ -282,12 +282,19 @@ if (STATIC_MODE) {
 }
 ```
 
+### CSV 관리 전략
+
+- `static/data/books.csv`가 단일 소스(Single Source of Truth)이다.
+- Flask 백엔드( localhost )는 이 CSV를 직접 읽고 쓰며, 기존 `sri_books_2025.csv`는 더 이상 필요하지 않다. (존재한다면 최초 실행 시 자동 복사)
+- GitHub Pages도 `books.json` 대신 `books.csv`를 우선적으로 읽어 최신 데이터를 표시한다.
+- CSV를 수정 후 커밋/푸시하면 GitHub Pages가 바로 반영된다.  
+  (JSON/통계가 필요하면 Export 버튼을 눌러 `books.json`, `stats.json`을 다시 생성)
+
 ## 파일 구조
 
 ```
 bookshelf_test/
 ├── app.py                          # Flask 백엔드 (localhost 전용)
-├── sri_books_2025.csv              # 원본 데이터
 ├── year_end_summary.json           # 연말 결산 데이터
 ├── static/
 │   ├── config.js                  # [NEW] 환경 감지 및 설정
@@ -295,7 +302,8 @@ bookshelf_test/
 │   ├── script.js                  # [MODIFY] 환경 분기 로직 추가
 │   ├── style.css                  # [MODIFY] 읽기 전용 스타일 추가
 │   ├── data/                      # [NEW] 정적 데이터 폴더
-│   │   ├── books.json             # [GENERATED] 책 데이터
+│   │   ├── books.csv              # [SOURCE] 책 데이터 (Flask + GitHub Pages 공통)
+│   │   ├── books.json             # [GENERATED] 책 데이터 (JSON)
 │   │   ├── stats.json             # [GENERATED] 통계 데이터
 │   │   └── summary.json           # [GENERATED] 연말 결산 데이터
 │   └── uploads/                    # 이미지 업로드 폴더

@@ -5,20 +5,64 @@ import requests
 import re
 import uuid
 import json
+import shutil
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-CSV_FILE = 'sri_books_2025.csv'
+CSV_FILE = 'static/data/books.csv'
+LEGACY_CSV_FILE = 'sri_books_2025.csv'
 SUMMARY_FILE = 'year_end_summary.json'
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def ensure_books_csv_exists():
+    """Ensure the primary books CSV exists (migrating from legacy if necessary)."""
+    if os.path.exists(CSV_FILE):
+        return CSV_FILE
+    if os.path.exists(LEGACY_CSV_FILE):
+        shutil.copy(LEGACY_CSV_FILE, CSV_FILE)
+        return CSV_FILE
+    # Initialize empty CSV with required columns
+    columns = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image']
+    pd.DataFrame(columns=columns).to_csv(CSV_FILE, index=False, encoding='utf-8-sig')
+    return CSV_FILE
+
+def normalize_read_date(date_value):
+    """Normalize assorted date formats to YYYY-MM-DD string."""
+    if date_value is None or (isinstance(date_value, float) and pd.isna(date_value)):
+        return ''
+    date_str = str(date_value).strip()
+    if not date_str:
+        return ''
+    # Try pandas parser first
+    try:
+        parsed = pd.to_datetime(date_str, errors='coerce', dayfirst=False)
+        if pd.notna(parsed):
+            return parsed.strftime('%Y-%m-%d')
+    except Exception:
+        pass
+    # Try Korean date style
+    parsed_korean = parse_korean_date(date_str)
+    if parsed_korean:
+        return parsed_korean.strftime('%Y-%m-%d')
+    # Try manual MM/DD/YY parsing
+    slash_match = re.match(r'^(\d{1,2})/(\d{1,2})/(\d{2,4})$', date_str)
+    if slash_match:
+        month = int(slash_match.group(1))
+        day = int(slash_match.group(2))
+        year = int(slash_match.group(3))
+        if year < 100:
+            year += 2000
+        return f"{year:04d}-{month:02d}-{day:02d}"
+    return date_str
 
 def enrich_book_metadata(book, metadata_cache=None):
     """Fill missing author/cover_image fields using external book APIs."""
@@ -61,8 +105,9 @@ def parse_korean_date(date_str):
 
 def load_books():
     """Load books from CSV file"""
-    if os.path.exists(CSV_FILE):
-        df = pd.read_csv(CSV_FILE, encoding='utf-8-sig')
+    csv_path = ensure_books_csv_exists()
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path, encoding='utf-8-sig')
         # Remove first row if it contains metadata
         if len(df) > 0:
             first_row = df.iloc[0]
@@ -87,9 +132,9 @@ def load_books():
             
             # Parse Korean date format
             if book.get('read_date'):
-                parsed_date = parse_korean_date(book['read_date'])
-                if parsed_date:
-                    book['read_date'] = parsed_date.strftime('%Y-%m-%d')
+                normalized = normalize_read_date(book['read_date'])
+                if normalized:
+                    book['read_date'] = normalized
         
         return books
     return []
@@ -113,7 +158,11 @@ def save_books(books):
         if col not in df.columns:
             df[col] = ''
     
+    os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
     df.to_csv(CSV_FILE, index=False, encoding='utf-8-sig')
+    # Keep legacy file in sync if it exists
+    if os.path.exists(LEGACY_CSV_FILE):
+        df.to_csv(LEGACY_CSV_FILE, index=False, encoding='utf-8-sig')
 
 def get_current_year_count(books):
     """Get count of books read in current year"""
@@ -565,7 +614,7 @@ def export_static_data():
             if col not in books_df.columns:
                 books_df[col] = ''
         books_df = books_df[csv_columns]
-        books_df.to_csv('static/data/books.csv', index=False, encoding='utf-8-sig')
+        books_df.to_csv(CSV_FILE, index=False, encoding='utf-8-sig')
         
         # Export stats
         current_year_count = get_current_year_count(books)
