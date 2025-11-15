@@ -45,7 +45,10 @@ The application reads from `books.csv` with the following columns:
 - `description`: Book description
 - `rating`: Rating from 0 to 5
 - `review`: One-line review
+- `cover_image`: Optional URL or uploaded image path
 
+When exporting for GitHub Pages, these same columns are also saved into `static/data/books.csv`.  
+This CSV mirrors `static/data/books.json`, so you can manage the bookshelf in a spreadsheet and rely on the export step to keep both formats in sync.
 ## Usage
 
 - **Search**: Type in the search box to filter books
@@ -53,4 +56,3 @@ The application reads from `books.csv` with the following columns:
 - **Sort**: Choose sorting option and order (ascending/descending)
 - **Add Book**: Click "Add New Book" button to add a new entry
 - All changes are automatically saved to `books.csv`
-

@@ -558,6 +558,15 @@ def export_static_data():
         with open('static/data/books.json', 'w', encoding='utf-8') as f:
             json.dump(books_clean, f, ensure_ascii=False, indent=2)
         
+        # Also export CSV representation for bulk uploads
+        books_df = pd.DataFrame(books_clean)
+        csv_columns = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image']
+        for col in csv_columns:
+            if col not in books_df.columns:
+                books_df[col] = ''
+        books_df = books_df[csv_columns]
+        books_df.to_csv('static/data/books.csv', index=False, encoding='utf-8-sig')
+        
         # Export stats
         current_year_count = get_current_year_count(books)
         current_date = datetime.now().strftime('%Y년 %m월 %d일')

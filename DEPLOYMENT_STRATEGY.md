@@ -162,6 +162,10 @@ def export_static_data():
         with open('static/data/books.json', 'w', encoding='utf-8') as f:
             json.dump(books_clean, f, ensure_ascii=False, indent=2)
         
+        # 추가: CSV도 함께 export (스프레드시트 업로드용)
+        books_df = pd.DataFrame(books_clean, columns=['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image'])
+        books_df.to_csv('static/data/books.csv', index=False, encoding='utf-8-sig')
+        
         # Export stats
         current_year_count = get_current_year_count(books)
         current_date = datetime.now().strftime('%Y년 %m월 %d일')
@@ -420,4 +424,3 @@ bookshelf_test/
 - 백엔드 API는 localhost에서만 작동
 - 데이터 업데이트는 수동 export 필요
 - 이미지는 Git 저장소에 포함되어야 함
-
