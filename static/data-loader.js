@@ -184,6 +184,27 @@ async function loadStaticFeedEntries() {
     }
 }
 
+// 정적 모드에서 추천 데이터 로드
+async function loadStaticRecommendations() {
+    try {
+        const basePath = getStaticBasePath();
+        const url = `${basePath}static/data/recommendations.json`;
+        console.log('Loading recommendations from:', url);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const entries = await response.json();
+        if (Array.isArray(entries)) {
+            return entries;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error loading static recommendations:', error);
+        return [];
+    }
+}
+
 // 클라이언트에서 통계 계산
 function calculateStatsFromBooks() {
     const currentYear = new Date().getFullYear();

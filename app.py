@@ -26,6 +26,7 @@ CSV_FILE = 'static/data/books.csv'
 LEGACY_CSV_FILE = 'sri_books_2025.csv'
 SUMMARY_FILE = 'year_end_summary.json'
 FEED_FILE = 'static/data/feed.json'
+RECOMMENDATIONS_FILE = 'static/data/recommendations.json'
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
 
@@ -33,6 +34,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(FEED_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(RECOMMENDATIONS_FILE), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -623,6 +625,42 @@ def normalize_mood_tags(value):
             normalized.append(clean)
     return normalized
 
+def load_recommendations():
+    """Load recommendation entries"""
+    if os.path.exists(RECOMMENDATIONS_FILE):
+        try:
+            with open(RECOMMENDATIONS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    return data
+        except:
+            pass
+    return []
+
+def save_recommendations(entries):
+    """Persist recommendations"""
+    os.makedirs(os.path.dirname(RECOMMENDATIONS_FILE), exist_ok=True)
+    with open(RECOMMENDATIONS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(entries, f, ensure_ascii=False, indent=2)
+
+def normalize_recommendation_books(books):
+    """Ensure books field contains up to 3 structured entries"""
+    normalized = []
+    if not books:
+        return normalized
+    for book in books:
+        if len(normalized) >= 3:
+            break
+        if not isinstance(book, dict):
+            continue
+        normalized.append({
+            'title': str(book.get('title', '') or '').strip(),
+            'author': str(book.get('author', '') or '').strip(),
+            'cover_image': str(book.get('cover_image', '') or '').strip(),
+            'description': str(book.get('description', '') or '').strip()
+        })
+    return normalized
+
 @app.route('/api/year-end-summary', methods=['GET'])
 def get_year_end_summary():
     """Get year-end summary"""
@@ -712,6 +750,99 @@ def delete_reading_feed_entry(entry_id):
         print(f"Error deleting feed entry: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/recommendations', methods=['GET'])
+def get_recommendations():
+    """Return recommendation entries"""
+    entries = load_recommendations()
+    return jsonify(entries)
+
+@app.route('/api/recommendations', methods=['POST'])
+def add_recommendation():
+    try:
+        data = request.json or {}
+        recommender_name = str(data.get('recommender_name', '') or '').strip()
+        profile_image = str(data.get('profile_image', '') or '').strip()
+        title_text = str(data.get('title', '') or '').strip()
+        reason = str(data.get('reason', '') or '').strip()
+        books = normalize_recommendation_books(data.get('books', []))
+        if not recommender_name:
+            return jsonify({'success': False, 'error': '추천인 이름을 입력해주세요.'}), 400
+        entry = {
+            'id': str(uuid.uuid4()),
+            'recommender_name': recommender_name,
+            'profile_image': profile_image,
+            'title': title_text,
+            'reason': reason,
+            'books': books,
+            'created_at': datetime.now().isoformat()
+        }
+        entries = load_recommendations()
+        entries.append(entry)
+        save_recommendations(entries)
+        return jsonify({'success': True, 'entry': entry}), 201
+    except Exception as e:
+        print(f"Error adding recommendation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/recommendations/<entry_id>', methods=['PUT'])
+def update_recommendation(entry_id):
+    try:
+        data = request.json or {}
+        entries = load_recommendations()
+        updated = None
+        for entry in entries:
+            if entry.get('id') == entry_id:
+                entry['recommender_name'] = str(data.get('recommender_name', entry.get('recommender_name', '')) or '').strip()
+                entry['profile_image'] = str(data.get('profile_image', entry.get('profile_image', '')) or '').strip()
+                entry['title'] = str(data.get('title', entry.get('title', '')) or '').strip()
+                entry['reason'] = str(data.get('reason', entry.get('reason', '')) or '').strip()
+                entry['books'] = normalize_recommendation_books(data.get('books', entry.get('books', [])))
+                entry['updated_at'] = datetime.now().isoformat()
+                if not entry.get('created_at'):
+                    entry['created_at'] = entry['updated_at']
+                updated = entry
+                break
+        if not updated:
+            return jsonify({'success': False, 'error': 'Recommendation not found'}), 404
+        save_recommendations(entries)
+        return jsonify({'success': True, 'entry': updated})
+    except Exception as e:
+        print(f"Error updating recommendation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/recommendations/<entry_id>', methods=['DELETE'])
+def delete_recommendation(entry_id):
+    try:
+        entries = load_recommendations()
+        new_entries = [entry for entry in entries if entry.get('id') != entry_id]
+        if len(new_entries) == len(entries):
+            return jsonify({'success': False, 'error': 'Recommendation not found'}), 404
+        save_recommendations(new_entries)
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error deleting recommendation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/recommendations/<entry_id>/move', methods=['POST'])
+def move_recommendation(entry_id):
+    """Move recommendation entry up or down"""
+    try:
+        direction = request.json.get('direction')
+        entries = load_recommendations()
+        index = next((i for i, entry in enumerate(entries) if entry.get('id') == entry_id), None)
+        if index is None:
+            return jsonify({'success': False, 'error': 'Recommendation not found'}), 404
+        if direction == 'up' and index > 0:
+            entries[index - 1], entries[index] = entries[index], entries[index - 1]
+            save_recommendations(entries)
+        elif direction == 'down' and index < len(entries) - 1:
+            entries[index + 1], entries[index] = entries[index], entries[index + 1]
+            save_recommendations(entries)
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error moving recommendation: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/books/current-year', methods=['GET'])
 def get_current_year_books():
     """Get all books read in current year"""
@@ -790,6 +921,11 @@ def export_static_data():
         feed_entries = load_feed_entries()
         with open(FEED_FILE, 'w', encoding='utf-8') as f:
             json.dump(feed_entries, f, ensure_ascii=False, indent=2)
+        
+        # Export recommendations
+        recommendations = load_recommendations()
+        with open(RECOMMENDATIONS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(recommendations, f, ensure_ascii=False, indent=2)
         
         return jsonify({'success': True, 'message': 'Static data exported successfully'})
     except Exception as e:

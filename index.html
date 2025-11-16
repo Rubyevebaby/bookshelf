@@ -27,6 +27,7 @@
         <div class="tabs">
             <button class="tab-btn active" id="tab-all-books" onclick="switchTab('all-books')">📋 올해 읽은 모든 책</button>
             <button class="tab-btn" id="tab-year-end" onclick="switchTab('year-end')"><span id="year-end-tab-text">🎊 2025 연말 결산</span></button>
+            <button class="tab-btn" id="tab-recommendations" onclick="switchTab('recommendations')">❤️ 좋은 책 같이 읽기</button>
             <button class="tab-btn" id="tab-reading-feed" onclick="switchTab('reading-feed')">🍑 스리의 독서피드</button>
         </div>
 
@@ -202,6 +203,93 @@
 
                 <div class="save-summary-section">
                     <button class="save-summary-btn" id="save-summary-btn">💾 저장하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Tab Content -->
+        <div class="tab-content" id="tab-content-recommendations">
+            <div class="recommendations-container">
+                <div class="recommendation-compose" id="recommendation-compose-section">
+                    <div class="recommendation-compose-header">
+                        <div>
+                            <h3>❤️ 좋은 책 추천 등록</h3>
+                            <p class="recommendation-compose-subtitle">추천인 정보와 최대 3권의 책을 작성하세요. GitHub Pages에는 읽기 전용으로 표시됩니다.</p>
+                        </div>
+                    </div>
+                    <div class="recommendation-profile-row">
+                        <div class="profile-image-section">
+                            <label for="recommendation-profile-upload">추천인 프로필</label>
+                            <input type="file" id="recommendation-profile-upload" accept="image/*">
+                            <div class="profile-preview-wrapper">
+                                <img id="recommendation-profile-preview" class="profile-preview" style="display: none;" data-image-url="">
+                                <span class="profile-placeholder">이미지를 업로드하면 원형으로 표시됩니다.</span>
+                            </div>
+                        </div>
+                        <div class="profile-info-section">
+                            <div class="form-group">
+                                <label for="recommendation-name">추천인 이름 *</label>
+                                <input type="text" id="recommendation-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="recommendation-title">추천 타이틀</label>
+                                <input type="text" id="recommendation-title" placeholder="예: 스리의 마음을 움직인 순간">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="recommendation-reason">추천 이유</label>
+                        <textarea id="recommendation-reason" rows="3" placeholder="이 책들을 추천하는 이유를 적어주세요."></textarea>
+                    </div>
+                    <div class="recommendation-books-editor">
+                        <h4>추천 도서 (최대 3권)</h4>
+                        <div class="recommendation-book-inputs">
+                            <div class="recommendation-book-block">
+                                <div class="recommendation-book-header">책 1</div>
+                                <div class="recommendation-book-preview-wrapper">
+                                    <img class="recommendation-book-preview" data-index="0" style="display:none;">
+                                    <span class="recommendation-book-placeholder">표지 미리보기</span>
+                                </div>
+                                <input type="text" class="recommendation-book-title" placeholder="책 제목">
+                                <input type="text" class="recommendation-book-author" placeholder="저자">
+                                <textarea class="recommendation-book-description" rows="2" placeholder="간단한 소개"></textarea>
+                                <input type="text" class="recommendation-book-cover" placeholder="표지 이미지 URL">
+                                <input type="file" class="recommendation-book-upload" accept="image/*">
+                            </div>
+                            <div class="recommendation-book-block">
+                                <div class="recommendation-book-header">책 2</div>
+                                <div class="recommendation-book-preview-wrapper">
+                                    <img class="recommendation-book-preview" data-index="1" style="display:none;">
+                                    <span class="recommendation-book-placeholder">표지 미리보기</span>
+                                </div>
+                                <input type="text" class="recommendation-book-title" placeholder="책 제목">
+                                <input type="text" class="recommendation-book-author" placeholder="저자">
+                                <textarea class="recommendation-book-description" rows="2" placeholder="간단한 소개"></textarea>
+                                <input type="text" class="recommendation-book-cover" placeholder="표지 이미지 URL">
+                                <input type="file" class="recommendation-book-upload" accept="image/*">
+                            </div>
+                            <div class="recommendation-book-block">
+                                <div class="recommendation-book-header">책 3</div>
+                                <div class="recommendation-book-preview-wrapper">
+                                    <img class="recommendation-book-preview" data-index="2" style="display:none;">
+                                    <span class="recommendation-book-placeholder">표지 미리보기</span>
+                                </div>
+                                <input type="text" class="recommendation-book-title" placeholder="책 제목">
+                                <input type="text" class="recommendation-book-author" placeholder="저자">
+                                <textarea class="recommendation-book-description" rows="2" placeholder="간단한 소개"></textarea>
+                                <input type="text" class="recommendation-book-cover" placeholder="표지 이미지 URL">
+                                <input type="file" class="recommendation-book-upload" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recommendation-compose-actions">
+                        <button class="btn-secondary" id="recommendation-export-btn">📤 Export Recommendations</button>
+                        <button class="btn-secondary" id="recommendation-cancel-edit-btn" style="display: none;">편집 취소</button>
+                        <button class="btn-submit" id="recommendation-submit-btn">추천 저장</button>
+                    </div>
+                </div>
+                <div class="recommendations-list" id="recommendations-list">
+                    <!-- Recommendation cards render here -->
                 </div>
             </div>
         </div>

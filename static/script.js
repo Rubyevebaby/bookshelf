@@ -3,6 +3,9 @@ let currentFeedEntries = [];
 let feedEditingId = null;
 let feedEditingImageUrl = '';
 let feedTags = [];
+let recommendationEntries = [];
+let recommendationEditingId = null;
+let recommendationProfileImageUrl = '';
 
 document.addEventListener('DOMContentLoaded', function() {
     // 정적 모드일 때 UI 업데이트
@@ -48,10 +51,30 @@ document.addEventListener('DOMContentLoaded', function() {
         tagInput.addEventListener('keydown', handleFeedTagKeyDown);
     }
     renderFeedTags();
+    const recommendationProfileUpload = document.getElementById('recommendation-profile-upload');
+    if (recommendationProfileUpload) {
+        recommendationProfileUpload.addEventListener('change', handleRecommendationProfileUpload);
+    }
+    document.querySelectorAll('.recommendation-book-upload').forEach((input, index) => {
+        input.addEventListener('change', event => handleRecommendationBookUpload(event, index));
+    });
+    const recommendationSubmitBtn = document.getElementById('recommendation-submit-btn');
+    if (recommendationSubmitBtn) {
+        recommendationSubmitBtn.addEventListener('click', submitRecommendationEntry);
+    }
+    const recommendationCancelBtn = document.getElementById('recommendation-cancel-edit-btn');
+    if (recommendationCancelBtn) {
+        recommendationCancelBtn.addEventListener('click', cancelRecommendationEdit);
+    }
+    const recommendationExportBtn = document.getElementById('recommendation-export-btn');
+    if (recommendationExportBtn) {
+        recommendationExportBtn.addEventListener('click', exportRecommendationsData);
+    }
     
     // Initialize year-end summary
     initializeYearEndSummary();
     initializeReadingFeed();
+    initializeRecommendations();
     
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {
@@ -637,6 +660,10 @@ function switchTab(tabName) {
         document.getElementById('tab-content-year-end').classList.add('active');
         document.getElementById('tab-year-end').classList.add('active');
         loadYearEndSummary();
+    } else if (tabName === 'recommendations') {
+        document.getElementById('tab-content-recommendations').classList.add('active');
+        document.getElementById('tab-recommendations').classList.add('active');
+        loadRecommendations();
     } else if (tabName === 'reading-feed') {
         document.getElementById('tab-content-reading-feed').classList.add('active');
         document.getElementById('tab-reading-feed').classList.add('active');
@@ -1139,6 +1166,10 @@ function disableWriteFeatures() {
     if (feedExportNote) {
         feedExportNote.style.display = 'none';
     }
+    const recommendationCompose = document.getElementById('recommendation-compose-section');
+    if (recommendationCompose) {
+        recommendationCompose.style.display = 'none';
+    }
 }
 
 // Save year-end summary
@@ -1317,6 +1348,444 @@ function renderReadingFeed(entries) {
         </div>
     `;
     }).join('');
+}
+
+// Recommendations logic
+async function initializeRecommendations() {
+    if (STATIC_MODE) {
+        const compose = document.getElementById('recommendation-compose-section');
+        if (compose) {
+            compose.style.display = 'none';
+        }
+    }
+    await loadRecommendations();
+}
+
+async function loadRecommendations() {
+    try {
+        let entries = [];
+        if (STATIC_MODE) {
+            entries = await loadStaticRecommendations();
+        } else {
+            const response = await fetch(getApiUrl('api/recommendations'));
+            entries = await response.json();
+        }
+        recommendationEntries = Array.isArray(entries) ? entries : [];
+        renderRecommendations(recommendationEntries);
+    } catch (error) {
+        console.error('Error loading recommendations:', error);
+    }
+}
+
+function renderRecommendations(entries) {
+    const list = document.getElementById('recommendations-list');
+    if (!list) return;
+    
+    if (!entries || entries.length === 0) {
+        list.innerHTML = '<div class="feed-empty">아직 등록된 추천이 없습니다.</div>';
+        return;
+    }
+    
+    list.innerHTML = entries.map(entry => {
+        const profileImage = entry.profile_image ? (resolveCoverImageUrl(entry.profile_image) || entry.profile_image) : '';
+        const fallbackTitle = entry.recommender_name ? `${entry.recommender_name}의 책 추천` : '추천 도서';
+        const titleText = entry.title && entry.title.trim() !== '' ? entry.title : fallbackTitle;
+        const safeTitle = escapeHtml(titleText);
+        const actions = STATIC_MODE ? '' : `
+            <div class="recommendation-card-actions">
+                <button class="feed-card-btn" onclick="moveRecommendationEntry('${entry.id}', 'up')">▲</button>
+                <button class="feed-card-btn" onclick="moveRecommendationEntry('${entry.id}', 'down')">▼</button>
+                <button class="feed-card-btn" onclick="editRecommendationEntry('${entry.id}')">수정</button>
+                <button class="feed-card-btn danger" onclick="deleteRecommendationEntry('${entry.id}')">삭제</button>
+            </div>
+        `;
+        return `
+            <div class="recommendation-card">
+                <div class="recommendation-header">
+                    ${profileImage ? `<img src="${profileImage}" alt="추천인">` : `<div class="profile-preview-wrapper" style="width:70px;height:70px;"><span class="profile-placeholder">No Image</span></div>`}
+                    <div>
+                        <div class="recommendation-title">${safeTitle}</div>
+                        <div class="recommendation-subtitle">${escapeHtml(entry.recommender_name || '')}</div>
+                    </div>
+                </div>
+                ${entry.reason ? `<div class="recommendation-reason">${formatMultilineText(entry.reason)}</div>` : ''}
+                ${renderRecommendationBooks(entry.books)}
+                ${actions}
+            </div>
+        `;
+    }).join('');
+}
+
+function renderRecommendationBooks(books) {
+    if (!books || !books.length) {
+        return '';
+    }
+    const cards = books.slice(0, 3).map(book => {
+        const cover = book.cover_image ? (resolveCoverImageUrl(book.cover_image) || book.cover_image) : '';
+        return `
+            <div class="recommendation-book-card">
+                ${cover ? `<img class="recommendation-book-cover" src="${cover}" alt="${escapeHtml(book.title || '')}">` : '<div class="recommendation-book-cover"></div>'}
+                <div class="recommendation-book-info">
+                    <div class="recommendation-book-title">${escapeHtml(book.title || 'Untitled')}</div>
+                    <div class="recommendation-book-author">${escapeHtml(book.author || '')}</div>
+                    ${book.description ? `<div class="recommendation-book-description">${escapeHtml(book.description)}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+    return `<div class="recommendation-books-row">${cards}</div>`;
+}
+
+function collectRecommendationBooks() {
+    const blocks = document.querySelectorAll('.recommendation-book-block');
+    const books = [];
+    blocks.forEach(block => {
+        const title = block.querySelector('.recommendation-book-title')?.value.trim() || '';
+        const author = block.querySelector('.recommendation-book-author')?.value.trim() || '';
+        const description = block.querySelector('.recommendation-book-description')?.value.trim() || '';
+        const cover = block.querySelector('.recommendation-book-cover')?.value.trim() || '';
+        if (title || author || description || cover) {
+            books.push({ title, author, description, cover_image: cover });
+        }
+    });
+    return books.slice(0, 3);
+}
+
+function fillRecommendationBooks(entry) {
+    const blocks = document.querySelectorAll('.recommendation-book-block');
+    blocks.forEach((block, idx) => {
+        const book = entry.books && entry.books[idx] ? entry.books[idx] : {};
+        block.querySelector('.recommendation-book-title').value = book.title || '';
+        block.querySelector('.recommendation-book-author').value = book.author || '';
+        block.querySelector('.recommendation-book-description').value = book.description || '';
+        block.querySelector('.recommendation-book-cover').value = book.cover_image || '';
+        updateRecommendationBookPreview(idx, book.cover_image || '');
+        const uploadInput = block.querySelector('.recommendation-book-upload');
+        if (uploadInput) {
+            uploadInput.value = '';
+        }
+    });
+}
+
+async function submitRecommendationEntry(event) {
+    event.preventDefault();
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 추천을 수정할 수 없습니다.');
+        return;
+    }
+    
+    const nameInput = document.getElementById('recommendation-name');
+    const titleInput = document.getElementById('recommendation-title');
+    const reasonInput = document.getElementById('recommendation-reason');
+    const submitBtn = document.getElementById('recommendation-submit-btn');
+    
+    const recommenderName = nameInput ? nameInput.value.trim() : '';
+    if (!recommenderName) {
+        alert('추천인 이름을 입력해주세요.');
+        return;
+    }
+    
+    const payload = {
+        recommender_name: recommenderName,
+        title: titleInput ? titleInput.value.trim() : '',
+        reason: reasonInput ? reasonInput.value.trim() : '',
+        profile_image: recommendationProfileImageUrl,
+        books: collectRecommendationBooks()
+    };
+    
+    try {
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = recommendationEditingId ? '수정 중...' : '추천 저장 중...';
+        }
+        
+        const method = recommendationEditingId ? 'PUT' : 'POST';
+        const url = recommendationEditingId ? `${getApiUrl('api/recommendations')}/${recommendationEditingId}` : getApiUrl('api/recommendations');
+        
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (data.success) {
+            recommendationEditingId = null;
+            recommendationProfileImageUrl = '';
+            resetRecommendationForm();
+            await loadRecommendations();
+        } else {
+            alert(data.error || '추천 저장 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error saving recommendation:', error);
+        alert('추천 저장 중 오류가 발생했습니다.');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '추천 저장';
+        }
+    }
+}
+
+function editRecommendationEntry(entryId) {
+    if (STATIC_MODE) return;
+    const entry = recommendationEntries.find(item => item.id === entryId);
+    if (!entry) return;
+    
+    recommendationEditingId = entryId;
+    recommendationProfileImageUrl = entry.profile_image || '';
+    
+    const nameInput = document.getElementById('recommendation-name');
+    const titleInput = document.getElementById('recommendation-title');
+    const reasonInput = document.getElementById('recommendation-reason');
+    const preview = document.getElementById('recommendation-profile-preview');
+    const placeholder = document.querySelector('#recommendation-compose-section .profile-placeholder');
+    const cancelBtn = document.getElementById('recommendation-cancel-edit-btn');
+    
+    if (nameInput) nameInput.value = entry.recommender_name || '';
+    if (titleInput) titleInput.value = entry.title || '';
+    if (reasonInput) reasonInput.value = entry.reason || '';
+    if (preview) {
+        if (entry.profile_image) {
+            const resolved = resolveCoverImageUrl(entry.profile_image) || entry.profile_image;
+            preview.src = resolved;
+            preview.style.display = 'block';
+            preview.setAttribute('data-image-url', entry.profile_image);
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+            preview.setAttribute('data-image-url', '');
+        }
+    }
+    if (placeholder) {
+        placeholder.style.display = entry.profile_image ? 'none' : 'block';
+    }
+    fillRecommendationBooks(entry);
+    if (cancelBtn) {
+        cancelBtn.style.display = 'inline-flex';
+    }
+}
+
+async function deleteRecommendationEntry(entryId) {
+    if (STATIC_MODE) return;
+    if (!confirm('이 추천을 삭제하시겠습니까?')) {
+        return;
+    }
+    try {
+        const response = await fetch(`${getApiUrl('api/recommendations')}/${entryId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        if (data.success) {
+            if (recommendationEditingId === entryId) {
+                cancelRecommendationEdit();
+            }
+            await loadRecommendations();
+        } else {
+            alert(data.error || '삭제 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error deleting recommendation:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+    }
+}
+
+async function moveRecommendationEntry(entryId, direction) {
+    if (STATIC_MODE) return;
+    try {
+        const response = await fetch(`${getApiUrl('api/recommendations')}/${entryId}/move`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ direction })
+        });
+        const data = await response.json();
+        if (data.success) {
+            await loadRecommendations();
+        } else {
+            alert(data.error || '순서 변경 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error moving recommendation:', error);
+        alert('순서 변경 중 오류가 발생했습니다.');
+    }
+}
+
+function cancelRecommendationEdit(event) {
+    if (event) event.preventDefault();
+    recommendationEditingId = null;
+    recommendationProfileImageUrl = '';
+    resetRecommendationForm();
+}
+
+function resetRecommendationForm() {
+    const nameInput = document.getElementById('recommendation-name');
+    const titleInput = document.getElementById('recommendation-title');
+    const reasonInput = document.getElementById('recommendation-reason');
+    const preview = document.getElementById('recommendation-profile-preview');
+    const placeholder = document.querySelector('#recommendation-compose-section .profile-placeholder');
+    const cancelBtn = document.getElementById('recommendation-cancel-edit-btn');
+    const profileUpload = document.getElementById('recommendation-profile-upload');
+    if (nameInput) nameInput.value = '';
+    if (titleInput) titleInput.value = '';
+    if (reasonInput) reasonInput.value = '';
+    if (profileUpload) profileUpload.value = '';
+    if (preview) {
+        preview.src = '';
+        preview.style.display = 'none';
+        preview.setAttribute('data-image-url', '');
+    }
+    if (placeholder) {
+        placeholder.style.display = 'block';
+    }
+    document.querySelectorAll('.recommendation-book-block').forEach(block => {
+        block.querySelector('.recommendation-book-title').value = '';
+        block.querySelector('.recommendation-book-author').value = '';
+        block.querySelector('.recommendation-book-description').value = '';
+        block.querySelector('.recommendation-book-cover').value = '';
+        const upload = block.querySelector('.recommendation-book-upload');
+        if (upload) upload.value = '';
+    });
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
+    }
+    recommendationProfileImageUrl = '';
+}
+
+async function handleRecommendationProfileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 이미지를 업로드할 수 없습니다.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch(getApiUrl('api/upload-cover'), {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            recommendationProfileImageUrl = data.url;
+            const preview = document.getElementById('recommendation-profile-preview');
+            const placeholder = document.querySelector('#recommendation-compose-section .profile-placeholder');
+            if (preview) {
+                preview.src = data.url;
+                preview.style.display = 'block';
+                preview.setAttribute('data-image-url', data.url);
+            }
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        } else {
+            alert('이미지 업로드 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error uploading profile image:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+async function handleRecommendationBookUpload(event, index) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 이미지를 업로드할 수 없습니다.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch(getApiUrl('api/upload-cover'), {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            const coverInputs = document.querySelectorAll('.recommendation-book-cover');
+            if (coverInputs[index]) {
+                coverInputs[index].value = data.url;
+            }
+            updateRecommendationBookPreview(index, data.url);
+        } else {
+            alert('이미지 업로드 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error uploading recommendation book image:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+function updateRecommendationBookPreview(index, url) {
+    const previews = document.querySelectorAll('.recommendation-book-preview');
+    const placeholders = document.querySelectorAll('.recommendation-book-placeholder');
+    if (!previews[index]) return;
+    if (url && url.trim() !== '') {
+        const resolved = resolveCoverImageUrl(url) || url.trim();
+        previews[index].src = resolved;
+        previews[index].style.display = 'block';
+        previews[index].setAttribute('data-image-url', url.trim());
+        if (placeholders[index]) {
+            placeholders[index].style.display = 'none';
+        }
+    } else {
+        previews[index].src = '';
+        previews[index].style.display = 'none';
+        previews[index].setAttribute('data-image-url', '');
+        if (placeholders[index]) {
+            placeholders[index].style.display = 'block';
+        }
+    }
+}
+
+async function exportRecommendationsData(event) {
+    event.preventDefault();
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 Export를 실행할 수 없습니다.');
+        return;
+    }
+    
+    if (!confirm('추천 데이터를 포함하여 정적 파일을 export하시겠습니까?')) {
+        return;
+    }
+    
+    const button = document.getElementById('recommendation-export-btn');
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Exporting...';
+    }
+    
+    try {
+        const response = await fetch(getApiUrl('api/export-static'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Export가 완료되었습니다! 변경 사항을 커밋/푸시해 주세요.');
+        } else {
+            alert('Export 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error exporting recommendations:', error);
+        alert('Export 중 오류가 발생했습니다.');
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = '📤 Export Recommendations';
+        }
+    }
 }
 
 async function deleteFeedEntry(entryId) {
@@ -1594,10 +2063,14 @@ function formatFeedTimestamp(timestamp) {
     return timestamp;
 }
 
-function formatFeedCaption(text) {
+function formatMultilineText(text) {
     if (!text) return '';
     const escaped = escapeHtml(text);
     return escaped.replace(/\r?\n/g, '<br>');
+}
+
+function formatFeedCaption(text) {
+    return formatMultilineText(text);
 }
 
 function renderMoodTags(tags) {
@@ -1657,3 +2130,8 @@ function renderFeedTags() {
         <span class="tag-chip">#${escapeHtml(tag)} <button type="button" onclick="removeFeedTag(${index})">×</button></span>
     `).join('');
 }
+    document.querySelectorAll('.recommendation-book-cover').forEach((input, index) => {
+        input.addEventListener('input', event => {
+            updateRecommendationBookPreview(index, event.target.value);
+        });
+    });

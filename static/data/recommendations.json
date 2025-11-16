@@ -1,0 +1,47 @@
+[
+  {
+    "id": "cfa0d581-63b3-4b85-947c-4d9673ad6260",
+    "recommender_name": "스리",
+    "profile_image": "/static/uploads/a853769b-831d-4061-a252-e6950e6538d8.jpg",
+    "title": "진짜 재밌는 소설을 원한다면?",
+    "reason": "",
+    "books": [
+      {
+        "title": "프로젝트 헤일메리",
+        "author": "앤디 위어",
+        "cover_image": "/static/uploads/9fcb4c30-90f3-46dd-8003-2488ad6734f5.jpg",
+        "description": "좋음! 좋음! 좋음! 외계 생명체와 인간의 우정💜 진짜 재밌게 잘 쓴 SF라고 생각해요. 이 책을 읽고 나서 다른 SF 소설도 찾아 읽게 됐어요."
+      },
+      {
+        "title": "수확자",
+        "author": "닐 셔스터먼",
+        "cover_image": "/static/uploads/8b6a566f-991a-46d4-add4-cf2e7d215bad.jpg",
+        "description": "이런 상상 대체 어떻게 한거지? 죽음이 없는 세상에서 인위적으로 생명을 거두는 '수확자'가 겪는 흥미로운 일들."
+      }
+    ],
+    "created_at": "2025-11-16T09:41:55.420617",
+    "updated_at": "2025-11-16T09:43:12.236962"
+  },
+  {
+    "id": "b38898f5-4dd7-4aaa-b625-b748d01beb05",
+    "recommender_name": "미미",
+    "profile_image": "/static/uploads/714a8b4f-689b-484d-a1a4-0b452553a30c.jpeg",
+    "title": "싸늘한 날씨에 잘 어울리는 문학",
+    "reason": "",
+    "books": [
+      {
+        "title": "도어",
+        "author": "서보 머그더",
+        "cover_image": "/static/uploads/2d9c68a7-af50-4311-8dda-3773a124a797.jpg",
+        "description": "음미하면서 천천히 읽기 좋아요."
+      },
+      {
+        "title": "너무 시끄러운 고독",
+        "author": "보후밀 흐라발",
+        "cover_image": "/static/uploads/1d26f41d-5258-4a64-b7ab-b063615d1e82.jpg",
+        "description": "붕바바방"
+      }
+    ],
+    "created_at": "2025-11-16T09:46:04.318758"
+  }
+]

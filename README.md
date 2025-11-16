@@ -13,6 +13,7 @@ A beautiful web application to track and manage your reading list.
 - ➕ Add new books directly from the web interface
 - 💾 All data stored in CSV format
 - 🍑 Share Instagram-style reading snippets in **스리의 독서피드**
+- ❤️ Curate friend recommendations in **좋은 책 같이 읽기**
 
 ## Setup
 
@@ -61,6 +62,12 @@ The 독서피드 tab stores entries in `static/data/feed.json` with:
 - `mood_tags`: Array of hashtags (chip-based input)
 - `created_at`: ISO timestamp (auto-generated)
 
+The 추천 탭 stores cards in `static/data/recommendations.json`:
+- `id`: Unique identifier
+- `recommender_name`, `profile_image`, `title`, `reason`
+- `books`: Array (max 3) of `{ title, author, description, cover_image }`
+- `created_at` / `updated_at`
+
 Entries are authored on localhost only. After posting, click **Export Feed Data** (or the global export button) and commit/push `static/data/feed.json` so GitHub Pages can display the updated feed.
 ## Usage
 
@@ -69,4 +76,5 @@ Entries are authored on localhost only. After posting, click **Export Feed Data*
 - **Sort**: Choose sorting option and order (ascending/descending)
 - **Add Book**: Click "Add New Book" button to add a new entry
 - **Reading Feed**: Switch to the 🍑 스리의 독서피드 tab, upload an image + caption, and click “게시하기” (localhost only). Use the export button beside the form to regenerate static data.
+- **Recommendations**: Use the ❤️ 좋은 책 같이 읽기 tab to register recommender info and up to 3 titles (localhost). Export afterward to refresh `static/data/recommendations.json`.
 - All changes are automatically saved to `static/data/books.csv`
