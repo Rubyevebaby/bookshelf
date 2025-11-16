@@ -123,7 +123,10 @@ async function loadStaticStats() {
     const formattedDate = getTodayFormattedDate();
     let stats = {
         current_date: formattedDate,
-        current_year_count: 0
+        current_year_count: 0,
+        monthly_average: 0,
+        total_pages: 0,
+        total_characters: 0
     };
     
     try {
@@ -132,8 +135,20 @@ async function loadStaticStats() {
         const response = await fetch(url);
         if (response.ok) {
             const data = await response.json();
+            if (typeof data.current_date === 'string') {
+                stats.current_date = data.current_date;
+            }
             if (typeof data.current_year_count === 'number') {
                 stats.current_year_count = data.current_year_count;
+            }
+            if (typeof data.monthly_average === 'number') {
+                stats.monthly_average = data.monthly_average;
+            }
+            if (typeof data.total_pages === 'number') {
+                stats.total_pages = data.total_pages;
+            }
+            if (typeof data.total_characters === 'number') {
+                stats.total_characters = data.total_characters;
             }
         } else {
             console.warn('Stats fetch failed with status:', response.status);
