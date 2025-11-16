@@ -161,7 +161,10 @@ async function loadStats() {
         }
         if (data) {
             const dateEl = document.getElementById('current-date');
-            if (dateEl) dateEl.textContent = data.current_date;
+            if (dateEl) {
+                const todayText = STATIC_MODE ? formatClientToday() : data.current_date;
+                dateEl.textContent = todayText;
+            }
             const monthlyEl = document.getElementById('monthly-average');
             if (monthlyEl) monthlyEl.textContent = formatStatValue(data.monthly_average, 2);
             const pagesEl = document.getElementById('total-pages');
@@ -2294,6 +2297,21 @@ function formatStatValue(value, fractionDigits = 0) {
         minimumFractionDigits: fractionDigits,
         maximumFractionDigits: fractionDigits
     });
+}
+
+function formatClientToday() {
+    const options = {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    };
+    const formatter = new Intl.DateTimeFormat('ko-KR', options);
+    const parts = formatter.formatToParts(new Date());
+    const year = parts.find(p => p.type === 'year')?.value || '0000';
+    const month = parts.find(p => p.type === 'month')?.value || '01';
+    const day = parts.find(p => p.type === 'day')?.value || '01';
+    return `${year}년 ${month}월 ${day}일`;
 }
 
 function renderMoodTags(tags) {
