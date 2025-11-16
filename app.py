@@ -27,6 +27,7 @@ LEGACY_CSV_FILE = 'sri_books_2025.csv'
 SUMMARY_FILE = 'year_end_summary.json'
 FEED_FILE = 'static/data/feed.json'
 RECOMMENDATIONS_FILE = 'static/data/recommendations.json'
+AVERAGE_CHAR_PER_PAGE = 700
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
 
@@ -80,6 +81,14 @@ def normalize_read_date(date_value):
         return f"{year:04d}-{month:02d}-{day:02d}"
     return date_str
 
+def normalize_page_count(value):
+    if value is None or value == '' or (isinstance(value, float) and pd.isna(value)):
+        return 0
+    try:
+        return int(float(value))
+    except:
+        return 0
+
 def enrich_book_metadata(book, metadata_cache=None):
     """Fill missing author/cover_image fields using external book APIs."""
     if not book:
@@ -102,7 +111,25 @@ def enrich_book_metadata(book, metadata_cache=None):
         book['author'] = info['author']
     if needs_cover and info.get('cover_url'):
         book['cover_image'] = info['cover_url']
+    if not book.get('page_count') and info.get('page_count'):
+        book['page_count'] = info['page_count']
     return book
+
+def ensure_page_count(book, metadata_cache=None):
+    if book.get('page_count'):
+        return False
+    metadata_cache = metadata_cache if metadata_cache is not None else {}
+    title = str(book.get('title', '')).strip()
+    if not title:
+        return False
+    key = (title.lower(), str(book.get('author', '') or '').lower())
+    if key not in metadata_cache:
+        metadata_cache[key] = get_book_info(title, book.get('author', ''))
+    info = metadata_cache.get(key, {})
+    if info.get('page_count'):
+        book['page_count'] = info['page_count']
+        return True
+    return False
 
 def parse_korean_date(date_str):
     """Parse Korean date format like '2025 1월' to datetime"""
@@ -140,6 +167,8 @@ def load_books():
             # Ensure cover_image field exists
             if 'cover_image' not in book:
                 book['cover_image'] = ''
+            if 'page_count' not in book:
+                book['page_count'] = 0
             
             # Convert NaN to empty string
             for key in book:
@@ -151,6 +180,7 @@ def load_books():
                 normalized = normalize_read_date(book['read_date'])
                 if normalized:
                     book['read_date'] = normalized
+            book['page_count'] = normalize_page_count(book.get('page_count', 0))
         
         return books
     return []
@@ -165,11 +195,13 @@ def save_books(books):
         # Ensure cover_image field exists (default to empty string if not present)
         if 'cover_image' not in book_copy:
             book_copy['cover_image'] = ''
+        if 'page_count' in book_copy:
+            book_copy['page_count'] = normalize_page_count(book_copy.get('page_count', 0))
         books_to_save.append(book_copy)
     
     df = pd.DataFrame(books_to_save)
     # Ensure all expected columns exist
-    expected_columns = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image']
+    expected_columns = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image', 'page_count']
     for col in expected_columns:
         if col not in df.columns:
             df[col] = ''
@@ -205,7 +237,7 @@ def get_book_info(title, author=''):
     if not title:
         return {'cover_url': None, 'author': None}
     
-    result = {'cover_url': None, 'author': None}
+    result = {'cover_url': None, 'author': None, 'page_count': None}
     
     # Try Google Books API first
     try:
@@ -265,6 +297,12 @@ def get_book_info(title, author=''):
                                 elif title in item_title or item_title in title:
                                     title_match = True
                                 
+                                # Page count
+                                if result['page_count'] is None and volume_info.get('pageCount'):
+                                    try:
+                                        result['page_count'] = int(volume_info.get('pageCount'))
+                                    except:
+                                        pass
                                 # Get author if not provided
                                 if not result['author'] and authors and len(authors) > 0:
                                     result['author'] = ', '.join(authors)
@@ -426,10 +464,24 @@ def get_stats():
     books = load_books()
     current_year_count = get_current_year_count(books)
     current_date = datetime.now().strftime('%Y년 %m월 %d일')
+    metadata_cache = {}
+    save_needed = False
+    for book in books:
+        if ensure_page_count(book, metadata_cache):
+            save_needed = True
+    if save_needed:
+        save_books(books)
+    total_pages = sum(normalize_page_count(book.get('page_count', 0)) for book in books)
+    months_elapsed = max(datetime.now().month, 1)
+    monthly_average = round(current_year_count / months_elapsed, 2) if months_elapsed else 0
+    total_characters = total_pages * AVERAGE_CHAR_PER_PAGE
     
     return jsonify({
         'current_date': current_date,
-        'current_year_count': current_year_count
+        'current_year_count': current_year_count,
+        'monthly_average': monthly_average,
+        'total_pages': total_pages,
+        'total_characters': total_characters
     })
 
 @app.route('/api/books', methods=['POST'])
@@ -880,10 +932,13 @@ def export_static_data():
         for book in books:
             book_copy = {}
             # Only keep valid book fields
-            valid_fields = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image']
+            valid_fields = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image', 'page_count']
             for field in valid_fields:
                 if field in book:
-                    book_copy[field] = book[field]
+                    if field == 'page_count':
+                        book_copy[field] = normalize_page_count(book.get(field, 0))
+                    else:
+                        book_copy[field] = book[field]
             # Fill metadata such as author and cover image before saving
             enrich_book_metadata(book_copy, metadata_cache)
             books_clean.append(book_copy)
@@ -895,7 +950,7 @@ def export_static_data():
         
         # Also export CSV representation for bulk uploads
         books_df = pd.DataFrame(books_clean)
-        csv_columns = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image']
+        csv_columns = ['title', 'author', 'category', 'read_date', 'description', 'rating', 'review', 'cover_image', 'page_count']
         for col in csv_columns:
             if col not in books_df.columns:
                 books_df[col] = ''
@@ -903,11 +958,25 @@ def export_static_data():
         books_df.to_csv(CSV_FILE, index=False, encoding='utf-8-sig')
         
         # Export stats
+        metadata_cache = {}
+        save_needed = False
+        for book in books:
+            if ensure_page_count(book, metadata_cache):
+                save_needed = True
+        if save_needed:
+            save_books(books)
         current_year_count = get_current_year_count(books)
         current_date = datetime.now().strftime('%Y년 %m월 %d일')
+        total_pages = sum(normalize_page_count(book.get('page_count', 0)) for book in books)
+        months_elapsed = max(datetime.now().month, 1)
+        monthly_average = round(current_year_count / months_elapsed, 2)
+        total_characters = total_pages * AVERAGE_CHAR_PER_PAGE
         stats = {
             'current_date': current_date,
-            'current_year_count': current_year_count
+            'current_year_count': current_year_count,
+            'monthly_average': monthly_average,
+            'total_pages': total_pages,
+            'total_characters': total_characters
         }
         with open('static/data/stats.json', 'w', encoding='utf-8') as f:
             json.dump(stats, f, ensure_ascii=False, indent=2)

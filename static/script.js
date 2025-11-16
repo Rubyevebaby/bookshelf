@@ -129,17 +129,25 @@ function updateYearDisplay() {
 async function loadStats() {
     updateYearDisplay();
     try {
+        let data;
         if (STATIC_MODE) {
-            // 정적 모드: JSON 파일에서 로드하거나 클라이언트에서 계산
-            const data = await loadStaticStats();
-            // 올해 읽은 책 수는 loadBooks에서 계산됨
-            document.getElementById('current-date').textContent = data.current_date;
-            // year-count는 loadBooks 후에 업데이트됨
+            data = await loadStaticStats();
         } else {
             const response = await fetch(getApiUrl('api/stats'));
-            const data = await response.json();
-            document.getElementById('current-date').textContent = data.current_date;
-            document.getElementById('year-count').textContent = data.current_year_count;
+            data = await response.json();
+            if (document.getElementById('year-count')) {
+                document.getElementById('year-count').textContent = data.current_year_count;
+            }
+        }
+        if (data) {
+            const dateEl = document.getElementById('current-date');
+            if (dateEl) dateEl.textContent = data.current_date;
+            const monthlyEl = document.getElementById('monthly-average');
+            if (monthlyEl) monthlyEl.textContent = formatStatValue(data.monthly_average, 2);
+            const pagesEl = document.getElementById('total-pages');
+            if (pagesEl) pagesEl.textContent = formatStatValue(data.total_pages, 0);
+            const charsEl = document.getElementById('total-characters');
+            if (charsEl) charsEl.textContent = formatStatValue(data.total_characters, 0);
         }
     } catch (error) {
         console.error('Error loading stats:', error);
@@ -2071,6 +2079,17 @@ function formatMultilineText(text) {
 
 function formatFeedCaption(text) {
     return formatMultilineText(text);
+}
+
+function formatStatValue(value, fractionDigits = 0) {
+    const num = Number(value);
+    if (isNaN(num)) {
+        return '-';
+    }
+    return num.toLocaleString('ko-KR', {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits
+    });
 }
 
 function renderMoodTags(tags) {

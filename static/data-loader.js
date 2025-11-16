@@ -207,14 +207,16 @@ async function loadStaticRecommendations() {
 
 // 클라이언트에서 통계 계산
 function calculateStatsFromBooks() {
-    const currentYear = new Date().getFullYear();
     const formattedDate = getTodayFormattedDate();
     
     // books.json에서 올해 읽은 책 수 계산
     // 이 함수는 loadStaticBooks() 후에 호출되어야 함
     return {
         current_date: formattedDate,
-        current_year_count: 0 // loadBooks에서 계산됨
+        current_year_count: 0,
+        monthly_average: 0,
+        total_pages: 0,
+        total_characters: 0
     };
 }
 
