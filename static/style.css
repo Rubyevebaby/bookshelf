@@ -1208,6 +1208,45 @@ body {
     gap: 24px;
 }
 
+.recommendation-cta {
+    background: linear-gradient(135deg, rgba(255, 173, 205, 0.35) 0%, rgba(255, 214, 165, 0.3) 100%);
+    border: 1px solid rgba(255, 189, 210, 0.6);
+    border-radius: 18px;
+    padding: 20px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.recommendation-cta h3 {
+    margin: 0;
+}
+
+.recommendation-cta p {
+    margin-top: 6px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.btn-cta {
+    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(255, 117, 140, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(255, 117, 140, 0.45);
+}
+
 .recommendation-compose {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.08);
