@@ -344,7 +344,7 @@ body {
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 30px;
+    margin: 25px 0 30px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border-radius: 15px;
@@ -390,8 +390,9 @@ body {
 }
 
 #tab-content-year-end {
-    padding: 0 20px 30px;
+    padding: 0 0 40px;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .title {
@@ -975,6 +976,9 @@ body {
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
 
 .year-end-title {
@@ -1018,7 +1022,7 @@ body {
 
 .book-selection-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 25px;
     width: 100%;
 }
@@ -1029,7 +1033,10 @@ body {
     gap: 15px;
     width: 100%;
     box-sizing: border-box;
-    padding: 0 4px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
 }
 
 .book-selection-item label {
@@ -1709,5 +1716,22 @@ body {
 
     .feed-card-body {
         padding: 14px;
+    }
+
+    #tab-content-year-end {
+        padding: 0 0 30px;
+    }
+
+    .summary-section {
+        padding: 22px 18px;
+    }
+
+    .book-selection-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .book-selection-item {
+        padding: 16px;
     }
 }
