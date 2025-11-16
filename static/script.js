@@ -927,6 +927,7 @@ function displaySelectedBook(cardElement, book, reason = '') {
         return;
     }
     
+    const reasonHtml = reason ? `<div class="selected-book-reason">💭 ${escapeHtml(reason)}</div>` : '';
     cardElement.innerHTML = `
         <div class="selected-book-mini-card">
             <div class="mini-cover-container">
@@ -938,9 +939,9 @@ function displaySelectedBook(cardElement, book, reason = '') {
             <div class="mini-book-info">
                 <div class="mini-title">${escapeHtml(book.title || 'Untitled')}</div>
                 <div class="mini-author" id="mini-author-${Date.now()}">${escapeHtml(book.author || '') || '저자 정보 로딩 중...'}</div>
-                ${reason ? `<div class="mini-reason">💭 ${escapeHtml(reason)}</div>` : ''}
             </div>
         </div>
+        ${reasonHtml}
     `;
     
     // Load cover image

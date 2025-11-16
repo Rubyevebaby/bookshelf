@@ -10,6 +10,8 @@ body {
     color: #ffffff;
     min-height: 100vh;
     padding: 20px;
+    margin: 0;
+    overflow-x: hidden;
 }
 
 .container {
@@ -348,6 +350,7 @@ body {
     border-radius: 15px;
     padding: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
 }
 
 .tab-btn {
@@ -361,6 +364,10 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s;
+}
+
+.tabs + .tab-content {
+    margin-top: 20px;
 }
 
 .tab-btn:hover {
@@ -380,6 +387,11 @@ body {
 
 .tab-content.active {
     display: block;
+}
+
+#tab-content-year-end {
+    padding: 0 20px 30px;
+    box-sizing: border-box;
 }
 
 .title {
@@ -959,7 +971,10 @@ body {
 
 /* Year End Summary Styles */
 .year-end-container {
-    padding: 30px;
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .year-end-title {
@@ -976,9 +991,22 @@ body {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 30px;
+    padding: 30px 24px;
     margin-bottom: 30px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.summary-section * {
+    box-sizing: border-box;
+}
+
+.book-selection-item,
+.selected-book-card,
+.selected-book-mini-card,
+.reason-input-container {
+    width: 100%;
 }
 
 .section-title {
@@ -992,12 +1020,16 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 25px;
+    width: 100%;
 }
 
 .book-selection-item {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 4px;
 }
 
 .book-selection-item label {
@@ -1107,6 +1139,8 @@ body {
     min-height: 150px;
     margin-top: 10px;
     margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .reason-input-container {
@@ -1157,6 +1191,9 @@ body {
     padding: 15px;
     border: 1px solid rgba(183, 148, 246, 0.2);
     transition: all 0.3s;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: flex-start;
 }
 
 .selected-book-mini-card:hover {
@@ -1187,7 +1224,6 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     gap: 8px;
 }
 
@@ -1196,6 +1232,7 @@ body {
     font-weight: 600;
     color: #ffffff;
     line-height: 1.3;
+    word-break: break-word;
 }
 
 .mini-author {
@@ -1204,15 +1241,19 @@ body {
 }
 
 .mini-reason {
-    margin-top: 10px;
-    padding: 8px 12px;
-    background: rgba(183, 148, 246, 0.1);
-    border-left: 3px solid #b794f6;
-    border-radius: 4px;
-    font-size: 0.9em;
+    display: none;
+}
+
+.selected-book-reason {
+    margin-top: 12px;
+    background: rgba(183, 148, 246, 0.08);
+    border: 1px solid rgba(183, 148, 246, 0.3);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 0.95em;
+    line-height: 1.5;
     color: rgba(255, 255, 255, 0.9);
-    line-height: 1.4;
-    font-style: italic;
+    word-break: break-word;
 }
 
 .save-summary-section {
@@ -1565,4 +1606,108 @@ body {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+        overflow-x: hidden;
+    }
+
+    .header {
+        padding: 20px;
+        margin: 0;
+        width: 100%;
+    }
+
+    .container {
+        padding: 0 8px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .stat-item,
+    .stat-item.highlight {
+        width: 100%;
+        text-align: center;
+    }
+
+    .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .tab-btn {
+        width: 100%;
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+        padding: 12px 10px;
+    }
+
+    .about-section,
+    .about-editor-row,
+    .recommendation-profile-row,
+    .feed-compose-body {
+        flex-direction: column;
+    }
+
+    .about-editor-actions,
+    .feed-compose-actions,
+    .recommendation-compose-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .about-editor-actions button,
+    .feed-compose-actions button,
+    .recommendation-compose-actions button,
+    .about-actions button {
+        width: 100%;
+    }
+
+    .controls {
+        padding: 18px;
+    }
+
+    .search-filter-row,
+    .sort-box {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .books-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .book-cover-container {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+
+    .recommendation-book-inputs,
+    .recommendation-books-row,
+    .reading-feed-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recommendation-card,
+    .feed-card {
+        padding: 18px;
+    }
+
+    .feed-card-body {
+        padding: 14px;
+    }
 }
