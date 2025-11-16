@@ -27,6 +27,7 @@ LEGACY_CSV_FILE = 'sri_books_2025.csv'
 SUMMARY_FILE = 'year_end_summary.json'
 FEED_FILE = 'static/data/feed.json'
 RECOMMENDATIONS_FILE = 'static/data/recommendations.json'
+ABOUT_FILE = 'static/data/about.json'
 AVERAGE_CHAR_PER_PAGE = 700
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
@@ -36,6 +37,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(FEED_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(RECOMMENDATIONS_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(ABOUT_FILE), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -713,6 +715,30 @@ def normalize_recommendation_books(books):
         })
     return normalized
 
+def load_about_data():
+    if os.path.exists(ABOUT_FILE):
+        try:
+            with open(ABOUT_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    return data
+        except:
+            pass
+    return {
+        'profile_image': '',
+        'title': '안녕하세요, 스리입니다 👋',
+        'description': '책을 읽고 기록하며 느낀 점들을 이곳에 차곡차곡 쌓고 있어요.',
+        'highlights': [
+            '요즘 관심사: 감정의 언어, 여성 서사, 생각의 단단함을 길러주는 인문서',
+            '읽고 싶은 순간: 새벽 한잔의 커피와 함께 혹은 센치한 퇴근길에'
+        ]
+    }
+
+def save_about_data(data):
+    os.makedirs(os.path.dirname(ABOUT_FILE), exist_ok=True)
+    with open(ABOUT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
 @app.route('/api/year-end-summary', methods=['GET'])
 def get_year_end_summary():
     """Get year-end summary"""
@@ -895,6 +921,27 @@ def move_recommendation(entry_id):
         print(f"Error moving recommendation: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/about', methods=['GET'])
+def get_about():
+    return jsonify(load_about_data())
+
+@app.route('/api/about', methods=['POST'])
+def save_about():
+    try:
+        data = request.json or {}
+        about = load_about_data()
+        about['title'] = str(data.get('title', about.get('title', '')) or '').strip()
+        about['description'] = str(data.get('description', about.get('description', '')) or '').strip()
+        about['profile_image'] = str(data.get('profile_image', about.get('profile_image', '')) or '').strip()
+        highlights = data.get('highlights', about.get('highlights', []))
+        if isinstance(highlights, list):
+            about['highlights'] = [str(item).strip() for item in highlights if str(item).strip()]
+        save_about_data(about)
+        return jsonify({'success': True, 'about': about})
+    except Exception as e:
+        print(f"Error saving about data: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/books/current-year', methods=['GET'])
 def get_current_year_books():
     """Get all books read in current year"""
@@ -995,6 +1042,9 @@ def export_static_data():
         recommendations = load_recommendations()
         with open(RECOMMENDATIONS_FILE, 'w', encoding='utf-8') as f:
             json.dump(recommendations, f, ensure_ascii=False, indent=2)
+        about = load_about_data()
+        with open(ABOUT_FILE, 'w', encoding='utf-8') as f:
+            json.dump(about, f, ensure_ascii=False, indent=2)
         
         return jsonify({'success': True, 'message': 'Static data exported successfully'})
     except Exception as e:

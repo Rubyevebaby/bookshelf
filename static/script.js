@@ -6,6 +6,8 @@ let feedTags = [];
 let recommendationEntries = [];
 let recommendationEditingId = null;
 let recommendationProfileImageUrl = '';
+let aboutProfileImageUrl = '';
+let aboutData = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 정적 모드일 때 UI 업데이트
@@ -70,11 +72,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (recommendationExportBtn) {
         recommendationExportBtn.addEventListener('click', exportRecommendationsData);
     }
+    const aboutProfileUpload = document.getElementById('about-profile-upload');
+    if (aboutProfileUpload) {
+        aboutProfileUpload.addEventListener('change', handleAboutProfileUpload);
+    }
+    const aboutSaveBtn = document.getElementById('about-save-btn');
+    if (aboutSaveBtn) {
+        aboutSaveBtn.addEventListener('click', saveAboutSection);
+    }
+    const aboutCancelBtn = document.getElementById('about-cancel-btn');
+    if (aboutCancelBtn) {
+        aboutCancelBtn.addEventListener('click', resetAboutEditor);
+    }
     
     // Initialize year-end summary
     initializeYearEndSummary();
     initializeReadingFeed();
     initializeRecommendations();
+    initializeAboutSection();
     
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {
@@ -1442,6 +1457,173 @@ function renderRecommendationBooks(books) {
         `;
     }).join('');
     return `<div class="recommendation-books-row">${cards}</div>`;
+}
+
+async function initializeAboutSection() {
+    if (STATIC_MODE) {
+        const editor = document.getElementById('about-editor-section');
+        if (editor) {
+            editor.style.display = 'none';
+        }
+    }
+    await loadAboutData();
+}
+
+async function loadAboutData() {
+    try {
+        if (STATIC_MODE) {
+            aboutData = await loadStaticAbout();
+        } else {
+            const response = await fetch(getApiUrl('api/about'));
+            aboutData = await response.json();
+        }
+    } catch (error) {
+        console.error('Error loading about data:', error);
+        aboutData = null;
+    }
+    if (!aboutData) {
+        aboutData = {
+            profile_image: '',
+            title: '안녕하세요, 스리입니다 👋',
+            description: '책을 읽고 기록하며 느낀 점들을 이곳에 차곡차곡 쌓고 있어요.',
+            highlights: []
+        };
+    }
+    aboutProfileImageUrl = aboutData.profile_image || '';
+    renderAboutDisplay();
+    fillAboutEditor();
+}
+
+function renderAboutDisplay() {
+    const data = aboutData || {};
+    const titleEl = document.getElementById('about-title');
+    const descEl = document.getElementById('about-description');
+    const profileEl = document.getElementById('about-profile-image');
+    const listEl = document.getElementById('about-highlights');
+    if (titleEl) titleEl.textContent = data.title || '안녕하세요, 스리입니다 👋';
+    if (descEl) descEl.textContent = data.description || '책을 읽고 기록하며 느낀 점들을 이곳에 차곡차곡 쌓고 있어요.';
+    if (profileEl) {
+        if (data.profile_image) {
+            profileEl.src = resolveCoverImageUrl(data.profile_image) || data.profile_image;
+        } else {
+            profileEl.src = 'https://placehold.co/200x200?text=Sri';
+        }
+    }
+    if (listEl) {
+        const highlights = Array.isArray(data.highlights) && data.highlights.length > 0 ? data.highlights : [];
+        listEl.innerHTML = highlights.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    }
+}
+
+function fillAboutEditor() {
+    const data = aboutData || {};
+    const titleInput = document.getElementById('about-title-input');
+    const descInput = document.getElementById('about-description-input');
+    const highlightInputs = document.querySelectorAll('.about-highlight-input');
+    if (titleInput) titleInput.value = data.title || '';
+    if (descInput) descInput.value = data.description || '';
+    const highlights = Array.isArray(data.highlights) ? data.highlights : [];
+    highlightInputs.forEach((input, index) => {
+        input.value = highlights[index] || '';
+    });
+    const preview = document.getElementById('about-profile-preview');
+    const placeholder = document.querySelector('#about-editor-section .profile-placeholder');
+    if (preview) {
+        if (data.profile_image) {
+            preview.src = resolveCoverImageUrl(data.profile_image) || data.profile_image;
+            preview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'block';
+        }
+    }
+}
+
+async function handleAboutProfileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 이미지를 업로드할 수 없습니다.');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch(getApiUrl('api/upload-cover'), {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            aboutProfileImageUrl = data.url;
+            const preview = document.getElementById('about-profile-preview');
+            const placeholder = document.querySelector('#about-editor-section .profile-placeholder');
+            if (preview) {
+                preview.src = data.url;
+                preview.style.display = 'block';
+            }
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        } else {
+            alert('이미지 업로드 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error uploading about profile image:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+function collectAboutHighlights() {
+    const inputs = document.querySelectorAll('.about-highlight-input');
+    const highlights = [];
+    inputs.forEach(input => {
+        const value = input.value.trim();
+        if (value) highlights.push(value);
+    });
+    return highlights;
+}
+
+async function saveAboutSection(event) {
+    event.preventDefault();
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 소개를 수정할 수 없습니다.');
+        return;
+    }
+    const titleInput = document.getElementById('about-title-input');
+    const descInput = document.getElementById('about-description-input');
+    const payload = {
+        title: titleInput ? titleInput.value.trim() : '',
+        description: descInput ? descInput.value.trim() : '',
+        profile_image: aboutProfileImageUrl,
+        highlights: collectAboutHighlights()
+    };
+    try {
+        const response = await fetch(getApiUrl('api/about'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (data.success) {
+            aboutData = data.about;
+            renderAboutDisplay();
+            fillAboutEditor();
+        } else {
+            alert(data.error || '소개 저장 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error saving about data:', error);
+        alert('소개 저장 중 오류가 발생했습니다.');
+    }
+}
+
+function resetAboutEditor(event) {
+    if (event) event.preventDefault();
+    aboutProfileImageUrl = aboutData && aboutData.profile_image ? aboutData.profile_image : '';
+    fillAboutEditor();
 }
 
 function collectRecommendationBooks() {

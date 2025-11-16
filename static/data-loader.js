@@ -205,6 +205,23 @@ async function loadStaticRecommendations() {
     }
 }
 
+async function loadStaticAbout() {
+    try {
+        const basePath = getStaticBasePath();
+        const url = `${basePath}static/data/about.json`;
+        console.log('Loading about from:', url);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const about = await response.json();
+        return about;
+    } catch (error) {
+        console.error('Error loading static about:', error);
+        return null;
+    }
+}
+
 // 클라이언트에서 통계 계산
 function calculateStatsFromBooks() {
     const formattedDate = getTodayFormattedDate();

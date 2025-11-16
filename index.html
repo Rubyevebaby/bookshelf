@@ -11,6 +11,44 @@
         <!-- Header Section -->
         <header class="header">
             <h1 class="title">📚 My Bookshelf</h1>
+            <div class="about-section" id="about-display">
+                <div class="about-avatar">
+                    <img id="about-profile-image" src="" alt="Sri avatar">
+                </div>
+                <div class="about-text">
+                    <h2 id="about-title">안녕하세요, 스리입니다 👋</h2>
+                    <p id="about-description">책을 읽고 기록하며 느낀 점들을 이곳에 차곡차곡 쌓고 있어요.</p>
+                    <ul id="about-highlights"></ul>
+                </div>
+            </div>
+            <div class="about-editor" id="about-editor-section">
+                <div class="about-editor-row">
+                    <div class="profile-editor">
+                        <label for="about-profile-upload">프로필 이미지</label>
+                        <input type="file" id="about-profile-upload" accept="image/*">
+                        <div class="profile-preview-wrapper">
+                            <img id="about-profile-preview" class="profile-preview" style="display:none;">
+                            <span class="profile-placeholder">업로드한 이미지가 원형으로 표시됩니다.</span>
+                        </div>
+                    </div>
+                    <div class="about-fields">
+                        <label for="about-title-input">타이틀</label>
+                        <input type="text" id="about-title-input" placeholder="안녕하세요, 스리입니다 👋">
+                        <label for="about-description-input">소개 문장</label>
+                        <textarea id="about-description-input" rows="3"></textarea>
+                        <div class="about-highlights-editor">
+                            <label>하이라이트</label>
+                            <textarea class="about-highlight-input" rows="2" placeholder="하이라이트 1"></textarea>
+                            <textarea class="about-highlight-input" rows="2" placeholder="하이라이트 2"></textarea>
+                            <textarea class="about-highlight-input" rows="2" placeholder="하이라이트 3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-editor-actions">
+                    <button class="btn-secondary" id="about-cancel-btn">취소</button>
+                    <button class="btn-submit" id="about-save-btn">저장</button>
+                </div>
+            </div>
             <div class="stats">
                 <div class="stat-item">
                     <span class="stat-label">📅 Today</span>

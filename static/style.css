@@ -395,6 +395,7 @@ body {
     display: flex;
     gap: 30px;
     flex-wrap: wrap;
+    margin-top: 20px;
 }
 
 .stat-item {
@@ -422,6 +423,92 @@ body {
     font-size: 1.8em;
     font-weight: bold;
     color: #ffffff;
+}
+
+.about-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.about-avatar img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.about-text h2 {
+    margin: 0 0 8px;
+}
+
+.about-text p {
+    margin: 0 0 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.about-text ul {
+    margin: 0;
+    padding-left: 20px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.about-editor {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.about-editor-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.profile-editor {
+    flex: 0 0 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.about-fields {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.about-fields input,
+.about-fields textarea,
+.about-highlight-input {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    padding: 10px;
+}
+
+.about-highlights-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.about-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 12px;
 }
 
 /* Controls Styles */
