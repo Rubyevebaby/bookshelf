@@ -1,4 +1,9 @@
 // Load books and stats on page load
+let currentFeedEntries = [];
+let feedEditingId = null;
+let feedEditingImageUrl = '';
+let feedTags = [];
+
 document.addEventListener('DOMContentLoaded', function() {
     // 정적 모드일 때 UI 업데이트
     if (STATIC_MODE) {
@@ -22,9 +27,31 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cancel-edit-btn').addEventListener('click', closeEditModal);
     document.getElementById('edit-book-form').addEventListener('submit', updateBook);
     document.getElementById('save-summary-btn').addEventListener('click', saveYearEndSummary);
+    const feedImageInput = document.getElementById('feed-image-input');
+    if (feedImageInput) {
+        feedImageInput.addEventListener('change', handleFeedImageUpload);
+    }
+    const feedSubmitBtn = document.getElementById('feed-submit-btn');
+    if (feedSubmitBtn) {
+        feedSubmitBtn.addEventListener('click', submitFeedEntry);
+    }
+    const feedExportBtn = document.getElementById('feed-export-btn');
+    if (feedExportBtn) {
+        feedExportBtn.addEventListener('click', exportFeedData);
+    }
+    const feedCancelEditBtn = document.getElementById('feed-cancel-edit-btn');
+    if (feedCancelEditBtn) {
+        feedCancelEditBtn.addEventListener('click', cancelFeedEdit);
+    }
+    const tagInput = document.getElementById('feed-tag-input');
+    if (tagInput) {
+        tagInput.addEventListener('keydown', handleFeedTagKeyDown);
+    }
+    renderFeedTags();
     
     // Initialize year-end summary
     initializeYearEndSummary();
+    initializeReadingFeed();
     
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {
@@ -610,6 +637,10 @@ function switchTab(tabName) {
         document.getElementById('tab-content-year-end').classList.add('active');
         document.getElementById('tab-year-end').classList.add('active');
         loadYearEndSummary();
+    } else if (tabName === 'reading-feed') {
+        document.getElementById('tab-content-reading-feed').classList.add('active');
+        document.getElementById('tab-reading-feed').classList.add('active');
+        loadReadingFeed();
     }
 }
 
@@ -1099,6 +1130,15 @@ function disableWriteFeatures() {
     document.querySelectorAll('.reason-input-container').forEach(container => {
         container.style.display = 'none';
     });
+    
+    const feedComposeSection = document.getElementById('feed-compose-section');
+    if (feedComposeSection) {
+        feedComposeSection.style.display = 'none';
+    }
+    const feedExportNote = document.getElementById('feed-export-note');
+    if (feedExportNote) {
+        feedExportNote.style.display = 'none';
+    }
 }
 
 // Save year-end summary
@@ -1210,4 +1250,410 @@ async function saveYearEndSummary() {
         console.error('Error saving year-end summary:', error);
         alert('저장 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
+}
+
+// Reading feed logic
+async function initializeReadingFeed() {
+    if (STATIC_MODE) {
+        const compose = document.getElementById('feed-compose-section');
+        if (compose) {
+            compose.style.display = 'none';
+        }
+    }
+    await loadReadingFeed();
+}
+
+async function loadReadingFeed() {
+    try {
+        let feedEntries = [];
+        if (STATIC_MODE) {
+            feedEntries = await loadStaticFeedEntries();
+        } else {
+            const response = await fetch(getApiUrl('api/feed'));
+            feedEntries = await response.json();
+        }
+        const sortedEntries = Array.isArray(feedEntries) ? [...feedEntries] : [];
+        sortedEntries.sort((a, b) => {
+            const dateA = new Date(a?.created_at || '');
+            const dateB = new Date(b?.created_at || '');
+            return dateB - dateA;
+        });
+        currentFeedEntries = sortedEntries;
+        renderReadingFeed(sortedEntries);
+    } catch (error) {
+        console.error('Error loading reading feed:', error);
+    }
+}
+
+function renderReadingFeed(entries) {
+    const grid = document.getElementById('reading-feed-grid');
+    if (!grid) return;
+    
+    if (!entries || entries.length === 0) {
+        grid.innerHTML = '<div class="feed-empty">아직 게시된 피드가 없습니다. 첫 감상을 공유해보세요!</div>';
+        return;
+    }
+    
+    grid.innerHTML = entries.map(entry => {
+        const resolvedImage = entry.image_url ? resolveCoverImageUrl(entry.image_url) || entry.image_url : '';
+        const actions = STATIC_MODE ? '' : `
+            <div class="feed-card-actions">
+                <button class="feed-card-btn" onclick="editFeedEntry('${entry.id}')">수정</button>
+                <button class="feed-card-btn danger" onclick="deleteFeedEntry('${entry.id}')">삭제</button>
+            </div>
+        `;
+        return `
+        <div class="feed-card">
+            ${resolvedImage ? `<img class="feed-card-image" src="${resolvedImage}" alt="피드 이미지">` : ''}
+            <div class="feed-card-body">
+                <div class="feed-card-caption">${formatFeedCaption(entry.caption || '')}</div>
+                ${renderMoodTags(getEntryMoodTags(entry))}
+                <div class="feed-card-meta">
+                    <span>${formatFeedTimestamp(entry.created_at)}</span>
+                    ${entry.image_url ? '<span>📷</span>' : ''}
+                </div>
+                ${actions}
+            </div>
+        </div>
+    `;
+    }).join('');
+}
+
+async function deleteFeedEntry(entryId) {
+    if (STATIC_MODE) return;
+    if (!confirm('이 피드를 삭제할까요? 되돌릴 수 없습니다.')) {
+        return;
+    }
+    try {
+        const response = await fetch(`${getApiUrl('api/feed')}/${entryId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        if (data.success) {
+            if (feedEditingId === entryId) {
+                cancelFeedEdit();
+            }
+            await loadReadingFeed();
+        } else {
+            alert(data.error || '삭제 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error deleting feed entry:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+    }
+}
+
+function editFeedEntry(entryId) {
+    if (STATIC_MODE) return;
+    const entry = currentFeedEntries.find(item => item.id === entryId);
+    if (!entry) return;
+    
+    feedEditingId = entryId;
+    feedEditingImageUrl = entry.image_url || '';
+    
+    const captionInput = document.getElementById('feed-caption');
+    const preview = document.getElementById('feed-image-preview');
+    const placeholder = document.querySelector('.feed-image-placeholder');
+    const submitBtn = document.getElementById('feed-submit-btn');
+    const cancelBtn = document.getElementById('feed-cancel-edit-btn');
+    
+    feedTags = getEntryMoodTags(entry);
+    renderFeedTags();
+    if (captionInput) captionInput.value = entry.caption || '';
+    if (preview) {
+        if (entry.image_url) {
+            const resolved = resolveCoverImageUrl(entry.image_url) || entry.image_url;
+            preview.src = resolved;
+            preview.style.display = 'block';
+            preview.setAttribute('data-image-url', entry.image_url);
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+            preview.setAttribute('data-image-url', '');
+        }
+    }
+    if (placeholder) {
+        placeholder.style.display = entry.image_url ? 'none' : 'block';
+    }
+    if (submitBtn) {
+        submitBtn.textContent = '수정 완료';
+    }
+    if (cancelBtn) {
+        cancelBtn.style.display = 'inline-flex';
+    }
+}
+
+function cancelFeedEdit(event) {
+    if (event) event.preventDefault();
+    feedEditingId = null;
+    feedEditingImageUrl = '';
+    resetFeedForm();
+}
+
+function resetFeedForm() {
+    const captionInput = document.getElementById('feed-caption');
+    const preview = document.getElementById('feed-image-preview');
+    const placeholder = document.querySelector('.feed-image-placeholder');
+    const submitBtn = document.getElementById('feed-submit-btn');
+    const cancelBtn = document.getElementById('feed-cancel-edit-btn');
+    if (captionInput) captionInput.value = '';
+    if (preview) {
+        preview.src = '';
+        preview.style.display = 'none';
+        preview.setAttribute('data-image-url', '');
+    }
+    if (placeholder) {
+        placeholder.style.display = 'block';
+    }
+    if (submitBtn) {
+        submitBtn.textContent = '게시하기';
+    }
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
+    }
+    feedTags = [];
+    renderFeedTags();
+}
+
+async function handleFeedImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 이미지를 업로드할 수 없습니다.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch(getApiUrl('api/upload-cover'), {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            const preview = document.getElementById('feed-image-preview');
+            if (preview) {
+                preview.src = data.url;
+                preview.style.display = 'block';
+                preview.setAttribute('data-image-url', data.url);
+                if (feedEditingId) {
+                    feedEditingImageUrl = data.url;
+                }
+            }
+            const placeholder = document.querySelector('.feed-image-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        } else {
+            alert('이미지 업로드 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error uploading feed image:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+async function submitFeedEntry(event) {
+    event.preventDefault();
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 피드를 작성할 수 없습니다.');
+        return;
+    }
+    
+    const captionInput = document.getElementById('feed-caption');
+    const preview = document.getElementById('feed-image-preview');
+    const submitBtn = document.getElementById('feed-submit-btn');
+    
+    const caption = captionInput ? captionInput.value.trim() : '';
+    let imageUrl = preview ? (preview.getAttribute('data-image-url') || '') : '';
+    if (!imageUrl && feedEditingImageUrl) {
+        imageUrl = feedEditingImageUrl;
+    }
+    
+    if (!caption && !imageUrl) {
+        alert('이미지나 글 중 하나 이상은 입력해야 합니다.');
+        return;
+    }
+    
+    try {
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = feedEditingId ? '수정 중...' : '게시 중...';
+        }
+        
+        const method = feedEditingId ? 'PUT' : 'POST';
+        const url = feedEditingId ? `${getApiUrl('api/feed')}/${feedEditingId}` : getApiUrl('api/feed');
+        
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                caption,
+                image_url: imageUrl,
+                mood_tags: feedTags
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            feedEditingId = null;
+            feedEditingImageUrl = '';
+            if (captionInput) captionInput.value = '';
+            if (preview) {
+                preview.src = '';
+                preview.style.display = 'none';
+                preview.setAttribute('data-image-url', '');
+            }
+            const placeholder = document.querySelector('.feed-image-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'block';
+            }
+            feedTags = [];
+            renderFeedTags();
+            const cancelBtn = document.getElementById('feed-cancel-edit-btn');
+            if (cancelBtn) {
+                cancelBtn.style.display = 'none';
+            }
+            await loadReadingFeed();
+        } else {
+            alert(data.error || '피드 저장 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error saving feed entry:', error);
+        alert('피드 저장 중 오류가 발생했습니다.');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = feedEditingId ? '수정 완료' : '게시하기';
+        }
+    }
+}
+
+async function exportFeedData(event) {
+    event.preventDefault();
+    
+    if (STATIC_MODE) {
+        alert('정적 모드에서는 Export를 실행할 수 없습니다.');
+        return;
+    }
+    
+    if (!confirm('정적 데이터를 export하여 GitHub Pages에 반영하시겠습니까?')) {
+        return;
+    }
+    
+    const button = document.getElementById('feed-export-btn');
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Exporting...';
+    }
+    
+    try {
+        const response = await fetch(getApiUrl('api/export-static'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Export가 완료되었습니다! 변경 사항을 커밋/푸시해 주세요.');
+        } else {
+            alert('Export 중 오류가 발생했습니다.');
+        }
+    } catch (error) {
+        console.error('Error exporting feed data:', error);
+        alert('Export 중 오류가 발생했습니다.');
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = '📤 Export Feed Data';
+        }
+    }
+}
+
+function formatFeedTimestamp(timestamp) {
+    if (!timestamp) return '';
+    try {
+        const date = new Date(timestamp);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    } catch (error) {
+        console.error('Error formatting timestamp:', error);
+    }
+    return timestamp;
+}
+
+function formatFeedCaption(text) {
+    if (!text) return '';
+    const escaped = escapeHtml(text);
+    return escaped.replace(/\r?\n/g, '<br>');
+}
+
+function renderMoodTags(tags) {
+    if (!tags || !tags.length) {
+        return '';
+    }
+    const chips = tags.map(tag => `<span class="feed-card-mood">#${escapeHtml(tag)}</span>`).join(' ');
+    return `<div class="feed-card-tags">${chips}</div>`;
+}
+
+function getEntryMoodTags(entry) {
+    if (!entry) return [];
+    if (Array.isArray(entry.mood_tags) && entry.mood_tags.length > 0) {
+        return entry.mood_tags;
+    }
+    if (typeof entry.mood === 'string' && entry.mood.trim() !== '') {
+        return entry.mood.split(/[#,\s]+/).map(tag => tag.trim()).filter(tag => tag);
+    }
+    return [];
+}
+
+function handleFeedTagKeyDown(event) {
+    if (event.key === 'Enter' || event.key === ',') {
+        event.preventDefault();
+        const input = event.target;
+        const value = input.value.trim();
+        if (value) {
+            addFeedTag(value);
+            input.value = '';
+        }
+    } else if (event.key === 'Backspace' && event.target.value === '' && feedTags.length > 0) {
+        feedTags.pop();
+        renderFeedTags();
+    }
+}
+
+function addFeedTag(rawValue) {
+    const clean = rawValue.replace(/^[#\s]+/, '').trim();
+    if (!clean) return;
+    if (feedTags.find(tag => tag.toLowerCase() === clean.toLowerCase())) {
+        return;
+    }
+    feedTags.push(clean);
+    renderFeedTags();
+}
+
+function removeFeedTag(index) {
+    if (index < 0 || index >= feedTags.length) return;
+    feedTags.splice(index, 1);
+    renderFeedTags();
+}
+
+function renderFeedTags() {
+    const list = document.getElementById('feed-tag-list');
+    if (!list) return;
+    list.innerHTML = feedTags.map((tag, index) => `
+        <span class="tag-chip">#${escapeHtml(tag)} <button type="button" onclick="removeFeedTag(${index})">×</button></span>
+    `).join('');
 }

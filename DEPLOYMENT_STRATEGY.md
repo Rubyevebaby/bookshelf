@@ -305,7 +305,8 @@ bookshelf_test/
 │   │   ├── books.csv              # [SOURCE] 책 데이터 (Flask + GitHub Pages 공통)
 │   │   ├── books.json             # [GENERATED] 책 데이터 (JSON)
 │   │   ├── stats.json             # [GENERATED] 통계 데이터
-│   │   └── summary.json           # [GENERATED] 연말 결산 데이터
+│   │   ├── summary.json           # [GENERATED] 연말 결산 데이터
+│   │   └── feed.json              # [SOURCE] 독서 피드 데이터
 │   └── uploads/                    # 이미지 업로드 폴더
 ├── templates/
 │   └── index.html                 # [MODIFY] config.js, data-loader.js 추가
@@ -432,3 +433,4 @@ bookshelf_test/
 - 백엔드 API는 localhost에서만 작동
 - 데이터 업데이트는 수동 export 필요
 - 이미지는 Git 저장소에 포함되어야 함
+- `static/data/feed.json`는 독서피드의 단일 소스다. Export 버튼을 클릭하면 feed 파일도 최신화되고 GitHub Pages에서 읽기만 한다.

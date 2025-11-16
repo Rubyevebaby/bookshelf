@@ -27,6 +27,7 @@
         <div class="tabs">
             <button class="tab-btn active" id="tab-all-books" onclick="switchTab('all-books')">📋 올해 읽은 모든 책</button>
             <button class="tab-btn" id="tab-year-end" onclick="switchTab('year-end')"><span id="year-end-tab-text">🎊 2025 연말 결산</span></button>
+            <button class="tab-btn" id="tab-reading-feed" onclick="switchTab('reading-feed')">🍑 스리의 독서피드</button>
         </div>
 
         <!-- All Books Tab Content -->
@@ -204,6 +205,46 @@
                 </div>
             </div>
         </div>
+
+        <!-- Reading Feed Tab Content -->
+        <div class="tab-content" id="tab-content-reading-feed">
+            <div class="reading-feed-container">
+                <div class="feed-compose" id="feed-compose-section">
+                    <div class="feed-compose-header">
+                        <div>
+                            <h3>🍑 스리의 독서피드 작성</h3>
+                            <p class="feed-compose-subtitle">사진과 글을 조합해 오늘의 독서 감상을 기록하세요.</p>
+                        </div>
+                    </div>
+                    <div class="feed-compose-body">
+                        <div class="feed-image-upload">
+                            <label for="feed-image-input">이미지 업로드</label>
+                            <input type="file" id="feed-image-input" accept="image/*">
+                            <div class="feed-image-preview-wrapper">
+                                <img id="feed-image-preview" class="feed-image-preview" style="display: none;">
+                                <span class="feed-image-placeholder">업로드한 이미지가 여기에 미리보기로 표시됩니다.</span>
+                            </div>
+                        </div>
+                        <div class="feed-text-inputs">
+                            <textarea id="feed-caption" rows="4" placeholder="지금의 감정, 책 이야기, 남기고 싶은 말을 자유롭게 적어주세요."></textarea>
+                            <div class="tag-input-container" id="feed-tag-container">
+                                <div class="tag-list" id="feed-tag-list"></div>
+                                <input type="text" id="feed-tag-input" placeholder="해시태그 입력 후 Enter">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feed-compose-actions">
+                        <button class="btn-secondary" id="feed-export-btn">📤 Export Feed Data</button>
+                        <button class="btn-secondary" id="feed-cancel-edit-btn" style="display: none;">편집 취소</button>
+                        <button class="btn-submit" id="feed-submit-btn">게시하기</button>
+                    </div>
+                    <p class="feed-compose-note" id="feed-export-note">⚠️ 게시 후 Export 버튼을 클릭해야 GitHub Pages에 반영됩니다.</p>
+                </div>
+                <div class="reading-feed-grid" id="reading-feed-grid">
+                    <!-- Feed entries will render here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add Book Modal -->
@@ -317,4 +358,3 @@
     <script src="static/script.js"></script>
 </body>
 </html>
-

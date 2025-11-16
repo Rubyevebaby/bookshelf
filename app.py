@@ -6,19 +6,33 @@ import re
 import uuid
 import json
 import shutil
+import io
 from datetime import datetime
 from werkzeug.utils import secure_filename
+HEIC_SUPPORTED = False
+try:
+    from PIL import Image
+    try:
+        from pillow_heif import register_heif_opener
+        register_heif_opener()
+    except Exception:
+        pass
+    HEIC_SUPPORTED = True
+except ImportError:
+    Image = None
 
 app = Flask(__name__)
 CSV_FILE = 'static/data/books.csv'
 LEGACY_CSV_FILE = 'sri_books_2025.csv'
 SUMMARY_FILE = 'year_end_summary.json'
+FEED_FILE = 'static/data/feed.json'
 UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(FEED_FILE), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -476,12 +490,33 @@ def upload_cover():
         return jsonify({'error': 'No file selected'}), 400
     
     if file and allowed_file(file.filename):
-        # Generate unique filename
-        filename = str(uuid.uuid4()) + '.' + file.filename.rsplit('.', 1)[1].lower()
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
+        original_ext = file.filename.rsplit('.', 1)[1].lower()
+        unique_name = str(uuid.uuid4())
+        filename = ''
+        filepath = ''
+        try:
+            file.stream.seek(0)
+            file_bytes = file.read()
+            if not file_bytes:
+                return jsonify({'error': '빈 파일입니다.'}), 400
+            
+            if original_ext in {'heic', 'heif'}:
+                if not HEIC_SUPPORTED or Image is None:
+                    return jsonify({'error': 'HEIC 이미지를 처리할 수 없습니다. JPG 등으로 변환한 뒤 업로드해주세요.'}), 400
+                filename = f'{unique_name}.jpg'
+                filepath = os.path.join(UPLOAD_FOLDER, filename)
+                image = Image.open(io.BytesIO(file_bytes))
+                image = image.convert('RGB')
+                image.save(filepath, format='JPEG', quality=90)
+            else:
+                filename = f'{unique_name}.{original_ext}'
+                filepath = os.path.join(UPLOAD_FOLDER, filename)
+                with open(filepath, 'wb') as f:
+                    f.write(file_bytes)
+        except Exception as e:
+            print(f"Error saving upload: {e}")
+            return jsonify({'error': '이미지 저장 중 오류가 발생했습니다.'}), 500
         
-        # Return URL to access the file
         return jsonify({'success': True, 'url': f'/static/uploads/{filename}'})
     
     return jsonify({'error': 'Invalid file type'}), 400
@@ -540,6 +575,54 @@ def save_summary(summary_data):
     with open(SUMMARY_FILE, 'w', encoding='utf-8') as f:
         json.dump(summary_data, f, ensure_ascii=False, indent=2)
 
+def load_feed_entries():
+    """Load reading feed entries"""
+    if os.path.exists(FEED_FILE):
+        try:
+            with open(FEED_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    normalized_entries = []
+                    changed = False
+                    for entry in data:
+                        if 'mood_tags' not in entry or not isinstance(entry.get('mood_tags'), list):
+                            migrated = normalize_mood_tags(entry.get('mood', entry.get('mood_tags', [])))
+                            entry['mood_tags'] = migrated
+                            changed = True
+                        normalized_entries.append(entry)
+                    if changed:
+                        save_feed_entries(normalized_entries)
+                    return normalized_entries
+        except:
+            pass
+    return []
+
+def save_feed_entries(entries):
+    """Persist reading feed entries"""
+    os.makedirs(os.path.dirname(FEED_FILE), exist_ok=True)
+    with open(FEED_FILE, 'w', encoding='utf-8') as f:
+        json.dump(entries, f, ensure_ascii=False, indent=2)
+
+def normalize_mood_tags(value):
+    """Ensure mood tags stored as clean list of unique strings"""
+    tags = []
+    if isinstance(value, list):
+        tags = value
+    elif isinstance(value, str):
+        tags = [tag.strip() for tag in re.split(r'[,\s]+', value) if tag.strip()]
+    if not tags:
+        return []
+    normalized = []
+    seen = set()
+    for tag in tags:
+        clean = tag.strip().lstrip('#')
+        if not clean:
+            continue
+        if clean.lower() not in seen:
+            seen.add(clean.lower())
+            normalized.append(clean)
+    return normalized
+
 @app.route('/api/year-end-summary', methods=['GET'])
 def get_year_end_summary():
     """Get year-end summary"""
@@ -555,6 +638,78 @@ def save_year_end_summary():
         return jsonify({'success': True})
     except Exception as e:
         print(f"Error saving summary: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/feed', methods=['GET'])
+def get_reading_feed():
+    """Return reading feed entries"""
+    feed_entries = load_feed_entries()
+    # Sort newest first
+    feed_entries.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+    return jsonify(feed_entries)
+
+@app.route('/api/feed', methods=['POST'])
+def add_reading_feed_entry():
+    """Create a new reading feed entry"""
+    try:
+        data = request.json or {}
+        caption = str(data.get('caption', '') or '').strip()
+        image_url = str(data.get('image_url', '') or '').strip()
+        mood_tags = normalize_mood_tags(data.get('mood_tags', []))
+        if not caption and not image_url:
+            return jsonify({'success': False, 'error': '내용 또는 이미지를 입력해주세요.'}), 400
+        feed_entries = load_feed_entries()
+        entry = {
+            'id': str(uuid.uuid4()),
+            'caption': caption,
+            'image_url': image_url,
+            'mood_tags': mood_tags,
+            'created_at': datetime.now().isoformat()
+        }
+        feed_entries.append(entry)
+        save_feed_entries(feed_entries)
+        return jsonify({'success': True, 'entry': entry}), 201
+    except Exception as e:
+        print(f"Error saving feed entry: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/feed/<entry_id>', methods=['PUT'])
+def update_reading_feed_entry(entry_id):
+    """Update an existing reading feed entry"""
+    try:
+        data = request.json or {}
+        feed_entries = load_feed_entries()
+        updated = None
+        for entry in feed_entries:
+            if entry.get('id') == entry_id:
+                entry['caption'] = str(data.get('caption', '') or '').strip()
+                entry['mood_tags'] = normalize_mood_tags(data.get('mood_tags', entry.get('mood_tags', [])))
+                entry['image_url'] = str(data.get('image_url', '') or '').strip()
+                entry['updated_at'] = datetime.now().isoformat()
+                if not entry.get('created_at'):
+                    entry['created_at'] = entry['updated_at']
+                updated = entry
+                break
+        if updated is None:
+            return jsonify({'success': False, 'error': 'Feed entry not found'}), 404
+        save_feed_entries(feed_entries)
+        return jsonify({'success': True, 'entry': updated})
+    except Exception as e:
+        print(f"Error updating feed entry: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/feed/<entry_id>', methods=['DELETE'])
+def delete_reading_feed_entry(entry_id):
+    """Delete a reading feed entry"""
+    try:
+        feed_entries = load_feed_entries()
+        new_entries = [entry for entry in feed_entries if entry.get('id') != entry_id]
+        if len(new_entries) == len(feed_entries):
+            return jsonify({'success': False, 'error': 'Feed entry not found'}), 404
+        save_feed_entries(new_entries)
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error deleting feed entry: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/books/current-year', methods=['GET'])
@@ -630,6 +785,11 @@ def export_static_data():
         summary = load_summary()
         with open('static/data/summary.json', 'w', encoding='utf-8') as f:
             json.dump(summary, f, ensure_ascii=False, indent=2)
+        
+        # Export reading feed
+        feed_entries = load_feed_entries()
+        with open(FEED_FILE, 'w', encoding='utf-8') as f:
+            json.dump(feed_entries, f, ensure_ascii=False, indent=2)
         
         return jsonify({'success': True, 'message': 'Static data exported successfully'})
     except Exception as e:

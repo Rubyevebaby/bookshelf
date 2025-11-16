@@ -35,7 +35,8 @@ function getApiUrl(endpoint) {
             'api/books': `${BASE_PATH}static/data/books.json`,
             'api/stats': `${BASE_PATH}static/data/stats.json`,
             'api/books/current-year': `${BASE_PATH}static/data/books.json`, // 클라이언트에서 필터링
-            'api/year-end-summary': `${BASE_PATH}static/data/summary.json`
+            'api/year-end-summary': `${BASE_PATH}static/data/summary.json`,
+            'api/feed': `${BASE_PATH}static/data/feed.json`
         };
         
         // 매핑된 경로가 있으면 사용
@@ -56,6 +57,6 @@ const STATIC_DATA_MAP = {
     'api/books': '/static/data/books.json',
     'api/stats': '/static/data/stats.json',
     'api/books/current-year': '/static/data/books.json', // 클라이언트에서 필터링
-    'api/year-end-summary': '/static/data/summary.json'
+    'api/year-end-summary': '/static/data/summary.json',
+    'api/feed': '/static/data/feed.json'
 };
-

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "0c9b118f-10aa-4083-b716-5c1bb128ae53",
+    "caption": "희귀한 책 구함~!",
+    "image_url": "/static/uploads/7364fa1d-fb61-469e-b488-713100349942.jpg",
+    "mood": "만화책, 스링, 하트",
+    "created_at": "2025-11-16T08:40:42.600589",
+    "updated_at": "2025-11-16T08:43:57.358801",
+    "mood_tags": [
+      "만화책",
+      "스링",
+      "하트"
+    ]
+  },
+  {
+    "id": "c5e4db96-ff87-4421-be4f-1e57453f76e9",
+    "caption": "붕바링붕바링붕바링붕바링\n붕바링붕바링붕바링붕바링\n붕바링붕바링붕바링",
+    "image_url": "/static/uploads/540dd3f8-ade4-4233-80c6-8ed0085e59cb.jpg",
+    "mood_tags": [
+      "붕바링"
+    ],
+    "created_at": "2025-11-16T08:57:07.627816"
+  },
+  {
+    "id": "ea3f2b39-802e-438c-aaf3-7dffd9ee1034",
+    "caption": "🍑🍑🍑🍑\n🍑🍑🍑🍑",
+    "image_url": "/static/uploads/039c8035-cc45-4dbe-a4a9-ef9600703702.jpg",
+    "mood_tags": [
+      "🍑"
+    ],
+    "created_at": "2025-11-16T08:59:15.116717"
+  }
+]
