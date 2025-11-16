@@ -460,6 +460,10 @@ body {
     color: rgba(255, 255, 255, 0.8);
 }
 
+.about-actions {
+    margin-top: 10px;
+}
+
 .about-editor {
     background: rgba(255, 255, 255, 0.03);
     border: 1px dashed rgba(255, 255, 255, 0.15);

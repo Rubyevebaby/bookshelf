@@ -8,6 +8,7 @@ let recommendationEditingId = null;
 let recommendationProfileImageUrl = '';
 let aboutProfileImageUrl = '';
 let aboutData = null;
+let aboutEditMode = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 정적 모드일 때 UI 업데이트
@@ -83,6 +84,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const aboutCancelBtn = document.getElementById('about-cancel-btn');
     if (aboutCancelBtn) {
         aboutCancelBtn.addEventListener('click', resetAboutEditor);
+    }
+    const aboutEditBtn = document.getElementById('about-edit-btn');
+    if (aboutEditBtn) {
+        aboutEditBtn.addEventListener('click', () => toggleAboutEditor(true));
     }
     
     // Initialize year-end summary
@@ -1460,11 +1465,13 @@ function renderRecommendationBooks(books) {
 }
 
 async function initializeAboutSection() {
+    const editor = document.getElementById('about-editor-section');
+    const editBtn = document.getElementById('about-edit-btn');
     if (STATIC_MODE) {
-        const editor = document.getElementById('about-editor-section');
-        if (editor) {
-            editor.style.display = 'none';
-        }
+        if (editor) editor.style.display = 'none';
+        if (editBtn) editBtn.style.display = 'none';
+    } else {
+        toggleAboutEditor(false);
     }
     await loadAboutData();
 }
@@ -1541,6 +1548,19 @@ function fillAboutEditor() {
     }
 }
 
+function toggleAboutEditor(show) {
+    if (STATIC_MODE) return;
+    aboutEditMode = show;
+    const editor = document.getElementById('about-editor-section');
+    const editBtn = document.getElementById('about-edit-btn');
+    if (editor) {
+        editor.style.display = show ? 'block' : 'none';
+    }
+    if (editBtn) {
+        editBtn.style.display = show ? 'none' : 'inline-flex';
+    }
+}
+
 async function handleAboutProfileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1611,6 +1631,7 @@ async function saveAboutSection(event) {
             aboutData = data.about;
             renderAboutDisplay();
             fillAboutEditor();
+            toggleAboutEditor(false);
         } else {
             alert(data.error || '소개 저장 중 오류가 발생했습니다.');
         }
@@ -1624,6 +1645,7 @@ function resetAboutEditor(event) {
     if (event) event.preventDefault();
     aboutProfileImageUrl = aboutData && aboutData.profile_image ? aboutData.profile_image : '';
     fillAboutEditor();
+    toggleAboutEditor(false);
 }
 
 function collectRecommendationBooks() {
