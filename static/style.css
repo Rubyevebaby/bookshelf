@@ -395,6 +395,19 @@ body {
     width: 100%;
 }
 
+#tab-content-year-end:not(.edit-mode) .searchable-dropdown,
+#tab-content-year-end:not(.edit-mode) .reason-input-container {
+    display: none;
+}
+
+#tab-content-year-end:not(.edit-mode) #save-summary-section {
+    display: none;
+}
+
+#tab-content-year-end.edit-mode #save-summary-section {
+    display: block;
+}
+
 .title {
     font-size: 2.5em;
     margin-bottom: 20px;
@@ -971,6 +984,14 @@ body {
 }
 
 /* Year End Summary Styles */
+.year-end-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
 .year-end-container {
     padding: 0;
     margin: 0 auto;
@@ -1720,6 +1741,11 @@ body {
 
     #tab-content-year-end {
         padding: 0 0 30px;
+    }
+
+    .year-end-toolbar {
+        justify-content: flex-start;
+        margin-bottom: 16px;
     }
 
     .summary-section {

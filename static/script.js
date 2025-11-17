@@ -9,6 +9,8 @@ let recommendationProfileImageUrl = '';
 let aboutProfileImageUrl = '';
 let aboutData = null;
 let aboutEditMode = false;
+let yearEndEditMode = false;
+let currentYearEndSummary = getEmptyYearEndSummary();
 
 document.addEventListener('DOMContentLoaded', function() {
     // 정적 모드일 때 UI 업데이트
@@ -89,6 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aboutEditBtn) {
         aboutEditBtn.addEventListener('click', () => toggleAboutEditor(true));
     }
+    const yearEndEditBtn = document.getElementById('year-end-edit-btn');
+    if (yearEndEditBtn) {
+        yearEndEditBtn.addEventListener('click', () => toggleYearEndEditMode());
+    }
+    setYearEndEditMode(false);
     
     // Initialize year-end summary
     initializeYearEndSummary();
@@ -743,6 +750,7 @@ function initializeSearchableDropdown(inputId, books) {
     
     // Store selected book index in data attribute
     input.setAttribute('data-selected-index', '');
+    input.removeAttribute('data-cleared');
     
     // Input focus event - show dropdown
     input.addEventListener('focus', function() {
@@ -756,6 +764,7 @@ function initializeSearchableDropdown(inputId, books) {
         // If input is cleared, clear selection
         if (this.value.trim() === '') {
             this.setAttribute('data-selected-index', '');
+            this.setAttribute('data-cleared', 'true');
             handleBookSelection(inputId, '', books);
         }
         
@@ -823,6 +832,7 @@ function selectBookFromDropdown(inputId, book, books) {
     // Store selected book index
     const bookIndex = book._index !== undefined ? book._index : '';
     input.setAttribute('data-selected-index', bookIndex);
+    input.removeAttribute('data-cleared');
     
     // Hide dropdown
     dropdown.classList.remove('show');
@@ -833,8 +843,15 @@ function selectBookFromDropdown(inputId, book, books) {
 
 // Handle book selection
 function handleBookSelection(inputId, bookIndex, books, reason = '') {
+    const inputElement = document.getElementById(inputId);
     const book = books.find(b => (b._index !== undefined ? b._index : '') == bookIndex);
     if (!book) {
+        if (inputElement) {
+            inputElement.setAttribute('data-cleared', 'true');
+            if (!bookIndex) {
+                inputElement.setAttribute('data-selected-index', '');
+            }
+        }
         // Clear card if no book selected
         let cardId = '';
         if (inputId.startsWith('enjoyable-')) {
@@ -857,6 +874,14 @@ function handleBookSelection(inputId, bookIndex, books, reason = '') {
                 card.innerHTML = '';
             }
         }
+        const clearedReasonInputId = getReasonInputIdForSelection(inputId);
+        if (clearedReasonInputId) {
+            const reasonInput = document.getElementById(clearedReasonInputId);
+            if (reasonInput) {
+                reasonInput.value = '';
+                unbindReasonInputFromCard(reasonInput);
+            }
+        }
         return;
     }
     
@@ -877,23 +902,13 @@ function handleBookSelection(inputId, bookIndex, books, reason = '') {
     }
     
     if (cardId) {
+        if (inputElement) {
+            inputElement.removeAttribute('data-cleared');
+        }
         const card = document.getElementById(cardId);
         if (card) {
             // Find reason input ID
-            let reasonInputId = '';
-            if (inputId.startsWith('enjoyable-')) {
-                const num = inputId.split('-')[1];
-                reasonInputId = `enjoyable-reason-${num}`;
-            } else if (inputId.startsWith('difficult-')) {
-                const num = inputId.split('-')[1];
-                reasonInputId = `difficult-reason-${num}`;
-            } else if (inputId === 'best-sripeak') {
-                reasonInputId = 'best-sripeak-reason';
-            } else if (inputId === 'best-bookclub') {
-                reasonInputId = 'best-bookclub-reason';
-            } else if (inputId === 'best-milli') {
-                reasonInputId = 'best-milli-reason';
-            }
+            const reasonInputId = getReasonInputIdForSelection(inputId);
             
             // Get reason from input if not provided
             if (!reason && reasonInputId) {
@@ -908,15 +923,54 @@ function handleBookSelection(inputId, bookIndex, books, reason = '') {
             if (!STATIC_MODE && reasonInputId) {
                 const reasonInput = document.getElementById(reasonInputId);
                 if (reasonInput) {
-                    const newReasonInput = reasonInput.cloneNode(true);
-                    reasonInput.parentNode.replaceChild(newReasonInput, reasonInput);
-                    
-                    newReasonInput.addEventListener('input', function() {
-                        displaySelectedBook(card, book, this.value);
-                    });
+                    if (reason && reasonInput.value !== reason) {
+                        reasonInput.value = reason;
+                    }
+                    bindReasonInputToCard(reasonInput, card, book);
                 }
             }
         }
+    }
+}
+
+function getReasonInputIdForSelection(inputId) {
+    if (inputId.startsWith('enjoyable-')) {
+        const num = inputId.split('-')[1];
+        return `enjoyable-reason-${num}`;
+    }
+    if (inputId.startsWith('difficult-')) {
+        const num = inputId.split('-')[1];
+        return `difficult-reason-${num}`;
+    }
+    if (inputId === 'best-sripeak') {
+        return 'best-sripeak-reason';
+    }
+    if (inputId === 'best-bookclub') {
+        return 'best-bookclub-reason';
+    }
+    if (inputId === 'best-milli') {
+        return 'best-milli-reason';
+    }
+    return '';
+}
+
+function bindReasonInputToCard(reasonInput, cardElement, book) {
+    if (!reasonInput) return;
+    if (reasonInput._yearEndHandler) {
+        reasonInput.removeEventListener('input', reasonInput._yearEndHandler);
+    }
+    const handler = () => {
+        displaySelectedBook(cardElement, book, reasonInput.value);
+    };
+    reasonInput._yearEndHandler = handler;
+    reasonInput.addEventListener('input', handler);
+}
+
+function unbindReasonInputFromCard(reasonInput) {
+    if (!reasonInput) return;
+    if (reasonInput._yearEndHandler) {
+        reasonInput.removeEventListener('input', reasonInput._yearEndHandler);
+        delete reasonInput._yearEndHandler;
     }
 }
 
@@ -1048,7 +1102,11 @@ async function loadYearEndSummary() {
             summary = await response.json();
         }
         
-        if (summary && Object.keys(summary).length > 0) {
+        summary = normalizeYearEndSummary(summary);
+        currentYearEndSummary = cloneYearEndSummary(summary);
+        const hasSummaryData = hasYearEndSummaryContent(summary);
+        
+        if (hasSummaryData) {
             // Set selected books
             if (summary.enjoyable) {
                 summary.enjoyable.forEach((item, idx) => {
@@ -1190,6 +1248,12 @@ function disableWriteFeatures() {
         container.style.display = 'none';
     });
     
+    const yearEndEditBtn = document.getElementById('year-end-edit-btn');
+    if (yearEndEditBtn) {
+        yearEndEditBtn.style.display = 'none';
+    }
+    setYearEndEditMode(false);
+    
     const feedComposeSection = document.getElementById('feed-compose-section');
     if (feedComposeSection) {
         feedComposeSection.style.display = 'none';
@@ -1204,9 +1268,28 @@ function disableWriteFeatures() {
     }
 }
 
-// Save year-end summary
-async function saveYearEndSummary() {
-    const summary = {
+function toggleYearEndEditMode(forceState) {
+    if (typeof forceState === 'boolean') {
+        setYearEndEditMode(forceState);
+        return;
+    }
+    setYearEndEditMode(!yearEndEditMode);
+}
+
+function setYearEndEditMode(active) {
+    yearEndEditMode = !!active;
+    const tab = document.getElementById('tab-content-year-end');
+    if (tab) {
+        tab.classList.toggle('edit-mode', yearEndEditMode);
+    }
+    const editBtn = document.getElementById('year-end-edit-btn');
+    if (editBtn) {
+        editBtn.textContent = yearEndEditMode ? '✅ 수정 종료' : '✏️ 수정하기';
+    }
+}
+
+function getEmptyYearEndSummary() {
+    return {
         enjoyable: [],
         difficult: [],
         best: {
@@ -1215,78 +1298,128 @@ async function saveYearEndSummary() {
             milli: null
         }
     };
-    
-    // Get enjoyable books with reasons
-    for (let i = 1; i <= 3; i++) {
-        const input = document.getElementById(`enjoyable-${i}`);
-        const reasonInput = document.getElementById(`enjoyable-reason-${i}`);
-        if (input) {
-            const selectedIndex = input.getAttribute('data-selected-index');
-            if (selectedIndex && selectedIndex !== '') {
-                const reason = reasonInput ? reasonInput.value.trim() : '';
-                summary.enjoyable.push({
-                    index: parseInt(selectedIndex),
-                    reason: reason
-                });
-            }
-        }
+}
+
+function normalizeYearEndEntry(item) {
+    if (item === null || item === undefined) return null;
+    if (typeof item === 'object') {
+        const parsed = parseInt(item.index, 10);
+        if (Number.isNaN(parsed)) return null;
+        return {
+            index: parsed,
+            reason: item.reason ? String(item.reason) : ''
+        };
+    }
+    const parsed = parseInt(item, 10);
+    if (Number.isNaN(parsed)) return null;
+    return { index: parsed, reason: '' };
+}
+
+function normalizeYearEndSummary(raw) {
+    const normalized = getEmptyYearEndSummary();
+    if (!raw || typeof raw !== 'object') {
+        return normalized;
     }
     
-    // Get difficult books with reasons
-    for (let i = 1; i <= 3; i++) {
-        const input = document.getElementById(`difficult-${i}`);
-        const reasonInput = document.getElementById(`difficult-reason-${i}`);
-        if (input) {
-            const selectedIndex = input.getAttribute('data-selected-index');
-            if (selectedIndex && selectedIndex !== '') {
-                const reason = reasonInput ? reasonInput.value.trim() : '';
-                summary.difficult.push({
-                    index: parseInt(selectedIndex),
-                    reason: reason
-                });
-            }
-        }
+    if (Array.isArray(raw.enjoyable)) {
+        normalized.enjoyable = raw.enjoyable
+            .map(normalizeYearEndEntry)
+            .filter(entry => entry && !Number.isNaN(entry.index));
     }
     
-    // Get best books with reasons
-    const bestSripeak = document.getElementById('best-sripeak');
-    const bestSripeakReason = document.getElementById('best-sripeak-reason');
-    if (bestSripeak) {
-        const selectedIndex = bestSripeak.getAttribute('data-selected-index');
-        if (selectedIndex && selectedIndex !== '') {
-            const reason = bestSripeakReason ? bestSripeakReason.value.trim() : '';
-            summary.best.sripeak = {
-                index: parseInt(selectedIndex),
-                reason: reason
-            };
-        }
+    if (Array.isArray(raw.difficult)) {
+        normalized.difficult = raw.difficult
+            .map(normalizeYearEndEntry)
+            .filter(entry => entry && !Number.isNaN(entry.index));
     }
     
-    const bestBookclub = document.getElementById('best-bookclub');
-    const bestBookclubReason = document.getElementById('best-bookclub-reason');
-    if (bestBookclub) {
-        const selectedIndex = bestBookclub.getAttribute('data-selected-index');
-        if (selectedIndex && selectedIndex !== '') {
-            const reason = bestBookclubReason ? bestBookclubReason.value.trim() : '';
-            summary.best.bookclub = {
-                index: parseInt(selectedIndex),
-                reason: reason
-            };
-        }
+    if (raw.best && typeof raw.best === 'object') {
+        normalized.best.sripeak = normalizeYearEndEntry(raw.best.sripeak) || null;
+        normalized.best.bookclub = normalizeYearEndEntry(raw.best.bookclub) || null;
+        normalized.best.milli = normalizeYearEndEntry(raw.best.milli) || null;
     }
     
-    const bestMilli = document.getElementById('best-milli');
-    const bestMilliReason = document.getElementById('best-milli-reason');
-    if (bestMilli) {
-        const selectedIndex = bestMilli.getAttribute('data-selected-index');
-        if (selectedIndex && selectedIndex !== '') {
-            const reason = bestMilliReason ? bestMilliReason.value.trim() : '';
-            summary.best.milli = {
-                index: parseInt(selectedIndex),
-                reason: reason
-            };
+    return normalized;
+}
+
+function cloneYearEndSummary(data) {
+    return JSON.parse(JSON.stringify(data || getEmptyYearEndSummary()));
+}
+
+function hasYearEndSummaryContent(summary) {
+    if (!summary) return false;
+    if (Array.isArray(summary.enjoyable) && summary.enjoyable.length > 0) return true;
+    if (Array.isArray(summary.difficult) && summary.difficult.length > 0) return true;
+    if (summary.best) {
+        if (summary.best.sripeak) return true;
+        if (summary.best.bookclub) return true;
+        if (summary.best.milli) return true;
+    }
+    return false;
+}
+
+function cloneYearEndEntry(entry) {
+    if (!entry || typeof entry !== 'object') return null;
+    return {
+        index: entry.index,
+        reason: entry.reason || ''
+    };
+}
+
+function resolveRankedEntryFromInput(inputId, reasonInputId, existingEntry) {
+    const input = document.getElementById(inputId);
+    if (!input) {
+        return existingEntry ? cloneYearEndEntry(existingEntry) : null;
+    }
+    const selectedIndex = input.getAttribute('data-selected-index');
+    const cleared = input.getAttribute('data-cleared') === 'true';
+    const reasonInput = document.getElementById(reasonInputId);
+    const reason = reasonInput ? reasonInput.value.trim() : '';
+    
+    if (selectedIndex && selectedIndex !== '') {
+        return {
+            index: parseInt(selectedIndex, 10),
+            reason: reason
+        };
+    }
+    
+    if (cleared) {
+        return null;
+    }
+    
+    return existingEntry ? cloneYearEndEntry(existingEntry) : null;
+}
+
+function mergeRankedSection(prefix, count, existingArray = []) {
+    const result = [];
+    for (let i = 1; i <= count; i++) {
+        const entry = resolveRankedEntryFromInput(`${prefix}-${i}`, `${prefix}-reason-${i}`, existingArray[i - 1]);
+        if (entry) {
+            result.push(entry);
         }
     }
+    return result;
+}
+
+function mergeSingleSelection(inputId, reasonInputId, existingEntry) {
+    return resolveRankedEntryFromInput(inputId, reasonInputId, existingEntry);
+}
+
+function buildYearEndSummaryPayload() {
+    const existing = cloneYearEndSummary(currentYearEndSummary);
+    const summary = getEmptyYearEndSummary();
+    summary.enjoyable = mergeRankedSection('enjoyable', 3, existing.enjoyable || []);
+    summary.difficult = mergeRankedSection('difficult', 3, existing.difficult || []);
+    const existingBest = existing.best || {};
+    summary.best.sripeak = mergeSingleSelection('best-sripeak', 'best-sripeak-reason', existingBest.sripeak || null);
+    summary.best.bookclub = mergeSingleSelection('best-bookclub', 'best-bookclub-reason', existingBest.bookclub || null);
+    summary.best.milli = mergeSingleSelection('best-milli', 'best-milli-reason', existingBest.milli || null);
+    return summary;
+}
+
+// Save year-end summary
+async function saveYearEndSummary() {
+    const summary = buildYearEndSummaryPayload();
     
     try {
         if (STATIC_MODE) {
@@ -1305,6 +1438,8 @@ async function saveYearEndSummary() {
         const data = await response.json();
         
         if (data.success) {
+            currentYearEndSummary = cloneYearEndSummary(summary);
+            setYearEndEditMode(false);
             alert('연말 결산이 저장되었습니다!');
         } else {
             alert('저장 중 오류가 발생했습니다. 다시 시도해주세요.');
