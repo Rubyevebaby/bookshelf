@@ -1,5 +1,27 @@
 [
   {
+    "id": "8bc39911-4d05-45ad-a24b-fd709b1d7e28",
+    "recommender_name": "린린",
+    "profile_image": "/static/uploads/b8fe2689-4195-430e-ab68-2b44a5cc40e8.png",
+    "title": "나와 타인, 그리고 사람을 이해하는데 도움을 주는 책",
+    "reason": "",
+    "books": [
+      {
+        "title": "이기적 유전자",
+        "author": "리처드 도킨스",
+        "cover_image": "/static/uploads/aad0ad31-4dbd-4ba5-a2bd-2ff941cd8631.jpg",
+        "description": "인간의 모든 선택이 본인의 유전자 보존을 목적으로 한다는 다소 과격한 주장을 하지만, 생태계 속 동물로서의 인간을 이해하는 첫 단추가 되어 줄 거 같아요. 서로의 가장 기초적인 욕구를 이해할 때, 공생이 시작되지 않을지! 최근에 meme이라는 단어가 이 책에서 가장 처음 사용되었다는 것을 알게 되어, 인생 책을 다시금 읽고 싶어졌어요 🤩"
+      },
+      {
+        "title": "유리멘탈을 위한 심리책",
+        "author": "미즈시마 히로코",
+        "cover_image": "/static/uploads/c7152811-3ac6-450c-8443-9f553a38a112.jpg",
+        "description": "무너지는 순간 나를 다잡고 싶을 때 도움을 준 책이에요. 마음이 힘든 여러 순간들에 대해 조금 떨어진 시각으로 상황을 바라보고 마음의 평온을 되찾을 수 있도록 도와줘요. 모두 스스로에게 조금 더 다정해지길."
+      }
+    ],
+    "created_at": "2025-11-19T16:08:31.455807"
+  },
+  {
     "id": "cfa0d581-63b3-4b85-947c-4d9673ad6260",
     "recommender_name": "스리",
     "profile_image": "/static/uploads/d31752c3-34ef-46ae-868d-5ba041ebbf3e.png",
