@@ -91,44 +91,10 @@
         <!-- Wishlist Tab Content -->
         <div class="tab-content" id="tab-content-wishlist">
             <div class="wishlist-container">
-                <div class="wishlist-compose" id="wishlist-compose-section">
-                    <div class="wishlist-compose-header">
-                        <h3>✨ 읽고 싶은 책 등록</h3>
-                        <p>앞으로 읽고 싶은 책을 추가하고 상태를 관리해보세요.</p>
-                    </div>
-                    <div class="wishlist-form-grid">
-                        <div class="form-group">
-                            <label for="wishlist-title">책 제목 *</label>
-                            <input type="text" id="wishlist-title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="wishlist-status">상태</label>
-                            <select id="wishlist-status">
-                                <option value="시작 전">시작 전</option>
-                                <option value="읽는 중">읽는 중</option>
-                                <option value="완독">완독</option>
-                            </select>
-                        </div>
-                        <div class="form-group form-group-wide">
-                            <label for="wishlist-reason">읽고 싶은 이유</label>
-                            <textarea id="wishlist-reason" rows="3" placeholder="왜 이 책을 읽고 싶은가요?"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="wishlist-cover-input">책 표지</label>
-                            <input type="file" id="wishlist-cover-input" accept="image/*">
-                            <div class="wishlist-cover-preview">
-                                <img id="wishlist-cover-preview" style="display:none;" alt="Preview">
-                                <span class="wishlist-cover-placeholder" id="wishlist-cover-placeholder">표지를 등록하지 않으면 기본 이미지가 사용돼요.</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="wishlist-actions">
-                        <button class="btn-secondary" type="button" id="wishlist-cancel-btn">취소</button>
-                        <button class="btn-submit" type="button" id="wishlist-submit-btn">등록</button>
-                    </div>
+                <div class="wishlist-header">
+                    <button class="add-book-btn" id="wishlist-add-btn">➕ 읽고 싶은 책 등록</button>
                 </div>
-                <div class="wishlist-list" id="wishlist-list">
-                </div>
+                <div class="wishlist-list" id="wishlist-list"></div>
             </div>
         </div>
 
