@@ -11,6 +11,15 @@ let aboutData = null;
 let aboutEditMode = false;
 let yearEndEditMode = false;
 let currentYearEndSummary = getEmptyYearEndSummary();
+let wishlistEntries = [];
+let wishlistEditingId = null;
+let wishlistCoverImageUrl = '';
+let wishlistModalCoverImageUrl = '';
+const WISHLIST_STATUS_META = {
+    '시작 전': { className: 'before', icon: '🌱', label: '시작 전' },
+    '읽는 중': { className: 'reading', icon: '📖', label: '읽는 중' },
+    '완독': { className: 'done', icon: '🏁', label: '완독' }
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     // 정적 모드일 때 UI 업데이트
@@ -95,10 +104,39 @@ document.addEventListener('DOMContentLoaded', function() {
     if (yearEndEditBtn) {
         yearEndEditBtn.addEventListener('click', () => toggleYearEndEditMode());
     }
+    const wishlistSubmitBtn = document.getElementById('wishlist-submit-btn');
+    if (wishlistSubmitBtn) {
+        wishlistSubmitBtn.addEventListener('click', submitWishlistEntry);
+    }
+    const wishlistCancelBtn = document.getElementById('wishlist-cancel-btn');
+    if (wishlistCancelBtn) {
+        wishlistCancelBtn.addEventListener('click', cancelWishlistEdit);
+    }
+    const wishlistCoverInput = document.getElementById('wishlist-cover-input');
+    if (wishlistCoverInput) {
+        wishlistCoverInput.addEventListener('change', handleWishlistCoverUpload);
+    }
+    const wishlistModalForm = document.getElementById('wishlist-modal-form');
+    if (wishlistModalForm) {
+        wishlistModalForm.addEventListener('submit', submitWishlistModal);
+    }
+    const wishlistModalClose = document.getElementById('close-wishlist-modal');
+    if (wishlistModalClose) {
+        wishlistModalClose.addEventListener('click', closeWishlistModal);
+    }
+    const wishlistModalCancelBtn = document.getElementById('wishlist-modal-cancel-btn');
+    if (wishlistModalCancelBtn) {
+        wishlistModalCancelBtn.addEventListener('click', closeWishlistModal);
+    }
+    const wishlistModalCoverInput = document.getElementById('wishlist-modal-cover-input');
+    if (wishlistModalCoverInput) {
+        wishlistModalCoverInput.addEventListener('change', handleWishlistModalCoverUpload);
+    }
     setYearEndEditMode(false);
     
     // Initialize year-end summary
     initializeYearEndSummary();
+    initializeWishlist();
     initializeReadingFeed();
     initializeRecommendations();
     initializeAboutSection();
@@ -107,11 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('click', function(event) {
         const addModal = document.getElementById('add-book-modal');
         const editModal = document.getElementById('edit-book-modal');
+        const wishlistModal = document.getElementById('wishlist-modal');
         if (event.target === addModal) {
             closeModal();
         }
         if (event.target === editModal) {
             closeEditModal();
+        }
+        if (event.target === wishlistModal) {
+            closeWishlistModal();
         }
     });
 });
@@ -691,7 +733,11 @@ function switchTab(tabName) {
     });
     
     // Show selected tab content
-    if (tabName === 'all-books') {
+    if (tabName === 'wishlist') {
+        document.getElementById('tab-content-wishlist').classList.add('active');
+        document.getElementById('tab-wishlist').classList.add('active');
+        loadWishlistEntries();
+    } else if (tabName === 'all-books') {
         document.getElementById('tab-content-all-books').classList.add('active');
         document.getElementById('tab-all-books').classList.add('active');
     } else if (tabName === 'year-end') {
@@ -1266,6 +1312,10 @@ function disableWriteFeatures() {
     if (recommendationCompose) {
         recommendationCompose.style.display = 'none';
     }
+    const wishlistCompose = document.getElementById('wishlist-compose-section');
+    if (wishlistCompose) {
+        wishlistCompose.style.display = 'none';
+    }
 }
 
 function toggleYearEndEditMode(forceState) {
@@ -1447,6 +1497,332 @@ async function saveYearEndSummary() {
     } catch (error) {
         console.error('Error saving year-end summary:', error);
         alert('저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+
+// Wishlist logic
+async function initializeWishlist() {
+    if (STATIC_MODE) {
+        const compose = document.getElementById('wishlist-compose-section');
+        if (compose) {
+            compose.style.display = 'none';
+        }
+    }
+    resetWishlistForm();
+    await loadWishlistEntries();
+}
+
+async function loadWishlistEntries() {
+    try {
+        if (STATIC_MODE) {
+            wishlistEntries = await loadStaticWishlist();
+        } else {
+            const response = await fetch(getApiUrl('api/wishlist'));
+            wishlistEntries = await response.json();
+        }
+    } catch (error) {
+        console.error('Error loading wishlist:', error);
+        wishlistEntries = [];
+    }
+    renderWishlistEntries(wishlistEntries);
+}
+
+function renderWishlistEntries(entries) {
+    const list = document.getElementById('wishlist-list');
+    if (!list) return;
+    
+    if (!entries || entries.length === 0) {
+        list.innerHTML = '<div class="wishlist-empty">아직 등록된 책이 없어요. 첫 번째 위시리스트를 추가해보세요!</div>';
+        return;
+    }
+    
+    list.innerHTML = entries.map(entry => {
+        const coverUrl = entry.cover_image ? (resolveCoverImageUrl(entry.cover_image) || entry.cover_image) : '';
+        const coverElement = coverUrl 
+            ? `<img src="${coverUrl}" alt="${escapeHtml(entry.title || '')}" class="wishlist-card-cover">`
+            : `<div class="wishlist-card-cover wishlist-card-cover-empty">📘</div>`;
+        const meta = getWishlistStatusMeta(entry.status);
+        const reasonHtml = entry.reason ? `<div class="wishlist-card-reason">${escapeHtml(entry.reason)}</div>` : '';
+        const actions = STATIC_MODE ? '' : `
+            <div class="wishlist-card-actions">
+                <button onclick="openWishlistEditModal('${entry.id}')">수정</button>
+                <button onclick="deleteWishlistEntry('${entry.id}')">삭제</button>
+            </div>
+        `;
+        return `
+            <div class="wishlist-card">
+                ${coverElement}
+                <div class="wishlist-card-title">${escapeHtml(entry.title || '')}</div>
+                ${reasonHtml}
+                <div class="wishlist-card-meta">
+                    <span class="wishlist-status ${meta.className}">
+                        <span>${meta.icon}</span>
+                        <span>${meta.label}</span>
+                    </span>
+                    ${entry.created_at ? `<span class="wishlist-created">${formatWishlistTimestamp(entry.created_at)}</span>` : ''}
+                </div>
+                ${actions}
+            </div>
+        `;
+    }).join('');
+}
+
+function getWishlistStatusMeta(status) {
+    return WISHLIST_STATUS_META[status] || WISHLIST_STATUS_META['시작 전'];
+}
+
+function resetWishlistForm(clearCover = true) {
+    const titleInput = document.getElementById('wishlist-title');
+    const reasonInput = document.getElementById('wishlist-reason');
+    const statusSelect = document.getElementById('wishlist-status');
+    if (titleInput) titleInput.value = '';
+    if (reasonInput) reasonInput.value = '';
+    if (statusSelect) statusSelect.value = '시작 전';
+    if (clearCover) {
+        wishlistCoverImageUrl = '';
+    }
+    updateWishlistCoverPreview(clearCover ? '' : wishlistCoverImageUrl);
+}
+
+function updateWishlistCoverPreview(url) {
+    const preview = document.getElementById('wishlist-cover-preview');
+    const placeholder = document.getElementById('wishlist-cover-placeholder');
+    if (!preview) return;
+    if (url) {
+        const resolved = resolveCoverImageUrl(url) || url;
+        preview.src = resolved;
+        preview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        preview.removeAttribute('src');
+        preview.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'block';
+    }
+}
+
+async function submitWishlistEntry(event) {
+    event.preventDefault();
+    if (STATIC_MODE) return;
+    
+    const titleInput = document.getElementById('wishlist-title');
+    const reasonInput = document.getElementById('wishlist-reason');
+    const statusSelect = document.getElementById('wishlist-status');
+    const title = titleInput ? titleInput.value.trim() : '';
+    const reason = reasonInput ? reasonInput.value.trim() : '';
+    const status = statusSelect ? statusSelect.value : WISHLIST_STATUS_META['시작 전'].label;
+    
+    if (!title) {
+        alert('책 제목을 입력해주세요.');
+        return;
+    }
+    
+    const payload = {
+        title,
+        reason,
+        status,
+        cover_image: wishlistCoverImageUrl
+    };
+    
+    try {
+        const response = await fetch(getApiUrl('api/wishlist'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || '저장 중 오류가 발생했습니다.');
+        }
+        resetWishlistForm();
+        await loadWishlistEntries();
+        alert('새로운 책이 등록되었습니다!');
+    } catch (error) {
+        console.error('Error saving wishlist entry:', error);
+        alert(error.message || '저장 중 오류가 발생했습니다.');
+    }
+}
+
+function cancelWishlistEdit(event) {
+    if (event) event.preventDefault();
+    resetWishlistForm();
+}
+
+async function deleteWishlistEntry(entryId) {
+    if (STATIC_MODE) return;
+    if (!confirm('이 책을 삭제할까요?')) {
+        return;
+    }
+    try {
+        const response = await fetch(getApiUrl(`api/wishlist/${entryId}`), {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || '삭제 중 오류가 발생했습니다.');
+        }
+        await loadWishlistEntries();
+    } catch (error) {
+        console.error('Error deleting wishlist entry:', error);
+        alert(error.message || '삭제 중 오류가 발생했습니다.');
+    }
+}
+
+async function handleWishlistCoverUpload(event) {
+    const file = event.target.files[0];
+    if (!file || STATIC_MODE) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch(getApiUrl('api/upload-cover'), {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.error || '업로드 실패');
+        }
+        wishlistCoverImageUrl = data.url;
+        updateWishlistCoverPreview(wishlistCoverImageUrl);
+    } catch (error) {
+        console.error('Error uploading wishlist cover:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+function openWishlistEditModal(entryId) {
+    if (STATIC_MODE) return;
+    const entry = wishlistEntries.find(item => item.id === entryId);
+    if (!entry) return;
+    wishlistEditingId = entryId;
+    populateWishlistModal(entry);
+    toggleWishlistModal(true);
+}
+
+function toggleWishlistModal(show) {
+    const modal = document.getElementById('wishlist-modal');
+    if (!modal) return;
+    modal.style.display = show ? 'block' : 'none';
+    document.body.style.overflow = show ? 'hidden' : '';
+    if (!show) {
+        resetWishlistModal();
+    }
+}
+
+function closeWishlistModal() {
+    toggleWishlistModal(false);
+}
+
+function resetWishlistModal() {
+    wishlistEditingId = null;
+    wishlistModalCoverImageUrl = '';
+    const titleInput = document.getElementById('wishlist-modal-title-input');
+    const reasonInput = document.getElementById('wishlist-modal-reason');
+    const statusSelect = document.getElementById('wishlist-modal-status');
+    if (titleInput) titleInput.value = '';
+    if (reasonInput) reasonInput.value = '';
+    if (statusSelect) statusSelect.value = '시작 전';
+    updateWishlistModalCoverPreview('');
+}
+
+function populateWishlistModal(entry) {
+    const titleInput = document.getElementById('wishlist-modal-title-input');
+    const reasonInput = document.getElementById('wishlist-modal-reason');
+    const statusSelect = document.getElementById('wishlist-modal-status');
+    if (titleInput) titleInput.value = entry.title || '';
+    if (reasonInput) reasonInput.value = entry.reason || '';
+    if (statusSelect && entry.status) {
+        statusSelect.value = entry.status;
+    }
+    wishlistModalCoverImageUrl = entry.cover_image || '';
+    updateWishlistModalCoverPreview(wishlistModalCoverImageUrl);
+}
+
+async function submitWishlistModal(event) {
+    event.preventDefault();
+    if (STATIC_MODE || !wishlistEditingId) return;
+    
+    const titleInput = document.getElementById('wishlist-modal-title-input');
+    const reasonInput = document.getElementById('wishlist-modal-reason');
+    const statusSelect = document.getElementById('wishlist-modal-status');
+    const title = titleInput ? titleInput.value.trim() : '';
+    if (!title) {
+        alert('책 제목을 입력해주세요.');
+        return;
+    }
+    const payload = {
+        title,
+        reason: reasonInput ? reasonInput.value.trim() : '',
+        status: statusSelect ? statusSelect.value : '시작 전',
+        cover_image: wishlistModalCoverImageUrl
+    };
+    try {
+        const response = await fetch(getApiUrl(`api/wishlist/${wishlistEditingId}`), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || '수정 중 오류가 발생했습니다.');
+        }
+        closeWishlistModal();
+        await loadWishlistEntries();
+        alert('위시리스트가 수정되었습니다.');
+    } catch (error) {
+        console.error('Error updating wishlist entry:', error);
+        alert(error.message || '수정 중 오류가 발생했습니다.');
+    }
+}
+
+async function handleWishlistModalCoverUpload(event) {
+    const file = event.target.files[0];
+    if (!file || STATIC_MODE) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch(getApiUrl('api/upload-cover'), {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.error || '업로드 실패');
+        }
+        wishlistModalCoverImageUrl = data.url;
+        updateWishlistModalCoverPreview(wishlistModalCoverImageUrl);
+    } catch (error) {
+        console.error('Error uploading wishlist modal cover:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    }
+}
+
+function updateWishlistModalCoverPreview(url) {
+    const preview = document.getElementById('wishlist-modal-cover-preview');
+    const placeholder = document.getElementById('wishlist-modal-cover-placeholder');
+    if (!preview) return;
+    if (url) {
+        const resolved = resolveCoverImageUrl(url) || url;
+        preview.src = resolved;
+        preview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        preview.removeAttribute('src');
+        preview.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'block';
+    }
+}
+
+function formatWishlistTimestamp(timestamp) {
+    try {
+        const date = new Date(timestamp);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+    } catch (error) {
+        return '';
     }
 }
 

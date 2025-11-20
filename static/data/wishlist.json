@@ -1,0 +1,42 @@
+[
+  {
+    "id": "e261d1e1-d305-4fcf-bfee-0aca695956c7",
+    "title": "test",
+    "reason": "test",
+    "status": "시작 전",
+    "cover_image": "",
+    "created_at": "2025-11-20T09:18:15.634849Z"
+  },
+  {
+    "id": "24026b8c-67b6-4e03-a5b7-0835d3c1727d",
+    "title": "test",
+    "reason": "test",
+    "status": "시작 전",
+    "cover_image": "",
+    "created_at": "2025-11-20T09:18:11.957039Z"
+  },
+  {
+    "id": "94154192-df88-4544-a4ec-a7d86397c4c5",
+    "title": "test",
+    "reason": "test",
+    "status": "시작 전",
+    "cover_image": "",
+    "created_at": "2025-11-20T09:18:07.881302Z"
+  },
+  {
+    "id": "7179f6b6-417a-4d1b-91b5-9355405aa946",
+    "title": "test",
+    "reason": "test",
+    "status": "시작 전",
+    "cover_image": "",
+    "created_at": "2025-11-20T09:14:20.690073Z"
+  },
+  {
+    "id": "cfece41c-5f37-4a73-a515-b01cf4c5d695",
+    "title": "이기적 유전자",
+    "reason": "예린이가 예전부터 넘넘 추천한 책! 이번에 나도 읽어봐야겠다.",
+    "status": "완독",
+    "cover_image": "/static/uploads/935f3671-d878-4881-832f-d28db39fefbf.jpg",
+    "created_at": "2025-11-20T09:13:54.629673Z"
+  }
+]

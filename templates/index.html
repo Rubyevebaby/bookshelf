@@ -82,9 +82,54 @@
         <!-- Tabs Section -->
         <div class="tabs">
             <button class="tab-btn active" id="tab-all-books" onclick="switchTab('all-books')">📋 올해 읽은 모든 책</button>
+            <button class="tab-btn" id="tab-wishlist" onclick="switchTab('wishlist')">📚 읽고 싶은 책</button>
             <button class="tab-btn" id="tab-year-end" onclick="switchTab('year-end')"><span id="year-end-tab-text">🎊 2025 연말 결산</span></button>
             <button class="tab-btn" id="tab-recommendations" onclick="switchTab('recommendations')">❤️ 좋은 책 같이 읽기</button>
             <button class="tab-btn" id="tab-reading-feed" onclick="switchTab('reading-feed')">🍑 스리의 독서피드</button>
+        </div>
+
+        <!-- Wishlist Tab Content -->
+        <div class="tab-content" id="tab-content-wishlist">
+            <div class="wishlist-container">
+                <div class="wishlist-compose" id="wishlist-compose-section">
+                    <div class="wishlist-compose-header">
+                        <h3>✨ 읽고 싶은 책 등록</h3>
+                        <p>앞으로 읽고 싶은 책을 추가하고 상태를 관리해보세요.</p>
+                    </div>
+                    <div class="wishlist-form-grid">
+                        <div class="form-group">
+                            <label for="wishlist-title">책 제목 *</label>
+                            <input type="text" id="wishlist-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="wishlist-status">상태</label>
+                            <select id="wishlist-status">
+                                <option value="시작 전">시작 전</option>
+                                <option value="읽는 중">읽는 중</option>
+                                <option value="완독">완독</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group-wide">
+                            <label for="wishlist-reason">읽고 싶은 이유</label>
+                            <textarea id="wishlist-reason" rows="3" placeholder="왜 이 책을 읽고 싶은가요?"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="wishlist-cover-input">책 표지</label>
+                            <input type="file" id="wishlist-cover-input" accept="image/*">
+                            <div class="wishlist-cover-preview">
+                                <img id="wishlist-cover-preview" style="display:none;" alt="Preview">
+                                <span class="wishlist-cover-placeholder" id="wishlist-cover-placeholder">표지를 등록하지 않으면 기본 이미지가 사용돼요.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wishlist-actions">
+                        <button class="btn-secondary" type="button" id="wishlist-cancel-btn">취소</button>
+                        <button class="btn-submit" type="button" id="wishlist-submit-btn">등록</button>
+                    </div>
+                </div>
+                <div class="wishlist-list" id="wishlist-list">
+                </div>
+            </div>
         </div>
 
         <!-- All Books Tab Content -->
@@ -479,6 +524,46 @@
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" id="cancel-edit-btn">Cancel</button>
                     <button type="submit" class="btn-submit">Update Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div class="modal" id="wishlist-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="wishlist-modal-title">📚 읽고 싶은 책 수정</h2>
+                <span class="close" id="close-wishlist-modal">&times;</span>
+            </div>
+            <form id="wishlist-modal-form">
+                <div class="form-group">
+                    <label for="wishlist-modal-title-input">책 제목 *</label>
+                    <input type="text" id="wishlist-modal-title-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="wishlist-modal-status">상태</label>
+                    <select id="wishlist-modal-status">
+                        <option value="시작 전">시작 전</option>
+                        <option value="읽는 중">읽는 중</option>
+                        <option value="완독">완독</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="wishlist-modal-reason">읽고 싶은 이유</label>
+                    <textarea id="wishlist-modal-reason" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="wishlist-modal-cover-input">책 표지</label>
+                    <input type="file" id="wishlist-modal-cover-input" accept="image/*">
+                    <div class="wishlist-cover-preview">
+                        <img id="wishlist-modal-cover-preview" style="display: none;" alt="Preview">
+                        <span class="wishlist-cover-placeholder" id="wishlist-modal-cover-placeholder">이미지를 변경하지 않으면 기존 표지가 유지됩니다.</span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="wishlist-modal-cancel-btn">취소</button>
+                    <button type="submit" class="btn-submit" id="wishlist-modal-submit-btn">저장</button>
                 </div>
             </form>
         </div>

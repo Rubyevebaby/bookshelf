@@ -28,6 +28,8 @@ SUMMARY_FILE = 'year_end_summary.json'
 FEED_FILE = 'static/data/feed.json'
 RECOMMENDATIONS_FILE = 'static/data/recommendations.json'
 ABOUT_FILE = 'static/data/about.json'
+WISHLIST_FILE = 'static/data/wishlist.json'
+WISHLIST_STATUSES = ['시작 전', '읽는 중', '완독']
 AVERAGE_CHAR_PER_PAGE = 700
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'}
@@ -38,6 +40,7 @@ os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(FEED_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(RECOMMENDATIONS_FILE), exist_ok=True)
 os.makedirs(os.path.dirname(ABOUT_FILE), exist_ok=True)
+os.makedirs(os.path.dirname(WISHLIST_FILE), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -697,6 +700,24 @@ def save_recommendations(entries):
     with open(RECOMMENDATIONS_FILE, 'w', encoding='utf-8') as f:
         json.dump(entries, f, ensure_ascii=False, indent=2)
 
+def load_wishlist():
+    """Load wishlist entries from JSON file"""
+    if os.path.exists(WISHLIST_FILE):
+        try:
+            with open(WISHLIST_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    return data
+        except Exception:
+            pass
+    return []
+
+def save_wishlist(entries):
+    """Persist wishlist entries"""
+    os.makedirs(os.path.dirname(WISHLIST_FILE), exist_ok=True)
+    with open(WISHLIST_FILE, 'w', encoding='utf-8') as f:
+        json.dump(entries, f, ensure_ascii=False, indent=2)
+
 def normalize_recommendation_books(books):
     """Ensure books field contains up to 3 structured entries"""
     normalized = []
@@ -754,6 +775,87 @@ def save_year_end_summary():
         return jsonify({'success': True})
     except Exception as e:
         print(f"Error saving summary: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/wishlist', methods=['GET'])
+def get_wishlist_entries():
+    """Return wishlist entries"""
+    entries = load_wishlist()
+    return jsonify(entries)
+
+@app.route('/api/wishlist', methods=['POST'])
+def add_wishlist_entry():
+    """Create a new wishlist entry"""
+    try:
+        data = request.json or {}
+        title = str(data.get('title', '') or '').strip()
+        if not title:
+            return jsonify({'success': False, 'error': '책 제목을 입력해주세요.'}), 400
+        reason = str(data.get('reason', '') or '').strip()
+        status = str(data.get('status', WISHLIST_STATUSES[0]) or '').strip()
+        if status not in WISHLIST_STATUSES:
+            status = WISHLIST_STATUSES[0]
+        cover_image = str(data.get('cover_image', '') or '').strip()
+        
+        entry = {
+            'id': str(uuid.uuid4()),
+            'title': title,
+            'reason': reason,
+            'status': status,
+            'cover_image': cover_image,
+            'created_at': datetime.utcnow().isoformat() + 'Z'
+        }
+        entries = load_wishlist()
+        entries.insert(0, entry)
+        save_wishlist(entries)
+        return jsonify({'success': True, 'entry': entry})
+    except Exception as e:
+        print(f"Error adding wishlist entry: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/wishlist/<entry_id>', methods=['PUT'])
+def update_wishlist_entry(entry_id):
+    """Update an existing wishlist entry"""
+    try:
+        data = request.json or {}
+        entries = load_wishlist()
+        updated_entry = None
+        for entry in entries:
+            if entry.get('id') == entry_id:
+                if 'title' in data:
+                    title = str(data.get('title', '') or '').strip()
+                    if title:
+                        entry['title'] = title
+                if 'reason' in data:
+                    entry['reason'] = str(data.get('reason', '') or '').strip()
+                if 'status' in data:
+                    status = str(data.get('status', '') or '').strip()
+                    if status in WISHLIST_STATUSES:
+                        entry['status'] = status
+                if 'cover_image' in data:
+                    entry['cover_image'] = str(data.get('cover_image', '') or '').strip()
+                updated_entry = entry
+                break
+        if updated_entry is None:
+            return jsonify({'success': False, 'error': '항목을 찾을 수 없습니다.'}), 404
+        save_wishlist(entries)
+        return jsonify({'success': True, 'entry': updated_entry})
+    except Exception as e:
+        print(f"Error updating wishlist entry: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/wishlist/<entry_id>', methods=['DELETE'])
+def delete_wishlist_entry(entry_id):
+    """Delete a wishlist entry"""
+    try:
+        entries = load_wishlist()
+        new_entries = [entry for entry in entries if entry.get('id') != entry_id]
+        if len(new_entries) == len(entries):
+            return jsonify({'success': False, 'error': '항목을 찾을 수 없습니다.'}), 404
+        save_wishlist(new_entries)
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error deleting wishlist entry: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/feed', methods=['GET'])
@@ -1045,6 +1147,9 @@ def export_static_data():
         about = load_about_data()
         with open(ABOUT_FILE, 'w', encoding='utf-8') as f:
             json.dump(about, f, ensure_ascii=False, indent=2)
+        wishlist_entries = load_wishlist()
+        with open(WISHLIST_FILE, 'w', encoding='utf-8') as f:
+            json.dump(wishlist_entries, f, ensure_ascii=False, indent=2)
         
         return jsonify({'success': True, 'message': 'Static data exported successfully'})
     except Exception as e:
