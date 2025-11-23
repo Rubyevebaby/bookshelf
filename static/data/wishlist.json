@@ -1,9 +1,17 @@
 [
   {
+    "id": "a687aa8d-9d4a-490e-a009-a516ac7a2a6d",
+    "title": "지리의 힘 1",
+    "reason": "북클럽에서 읽으려다가 <앵무새 죽이기>로 바꾸면서 못 읽었던 책이다. 예전에 세계지리를 재밌게 공부한 경험을 바탕으로, 이 책도 흥미롭게 읽을 수 있지 않을까?",
+    "status": "읽는 중",
+    "cover_image": "/static/uploads/9336983c-f9cf-4bc1-ac22-5f5fbe95401b.jpeg",
+    "created_at": "2025-11-23T05:53:35.530152Z"
+  },
+  {
     "id": "cfece41c-5f37-4a73-a515-b01cf4c5d695",
     "title": "이기적 유전자",
     "reason": "예린이가 예전부터 넘넘 추천한 책! 이번에 나도 읽어봐야겠다.",
-    "status": "완독",
+    "status": "시작 전",
     "cover_image": "/static/uploads/935f3671-d878-4881-832f-d28db39fefbf.jpg",
     "created_at": "2025-11-20T09:13:54.629673Z"
   }
