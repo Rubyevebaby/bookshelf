@@ -630,11 +630,11 @@
     "title": "사탄탱고",
     "author": "크러스너호르커이 라슬로",
     "category": "스리픽",
-    "read_date": "2025-11-01",
-    "description": "",
-    "rating": 0.0,
-    "review": "",
-    "cover_image": "/static/uploads/16af6d4e-e71a-41c2-80a3-0cdff69f6d30.jpg",
+    "read_date": "2025-12-20",
+    "description": "친구가 죽은 이유를 밝히러 가는 주인공. 내 친구는 자살할 사람이 아니야.",
+    "rating": 2.5,
+    "review": "짧아서 후루룩 읽을 수 있다. 다만 이 책에 등장하는 비현실적인 요소들은 내 취향과 맞지 않았다. 조예은 작가의 다른 소설인 <오버랩 나이프, 나이프>가 재미있었어서 이 책도 읽어본 건데, 흠... 살짝 힘이 빠지는 느낌.",
+    "cover_image": "/static/uploads/3ba2e04a-b927-4f57-9d96-d68b387f53dd.jpeg",
     "page_count": 385
   },
   {
@@ -721,8 +721,41 @@
     "read_date": "2025-12-13",
     "description": "12월 10일에 영화가 개봉한다는 소식에 우연히 밀리에서 집어든 책. 첫 몇 장에서부터 깊이 집중하게 된다.",
     "rating": 4.0,
-    "review": "",
+    "review": "나이든 여자가 주인공이어서 더욱 흥미롭게 읽었다. 게다가 청부살인업자라니. 이 책을 읽으면서 새로운 단어를 정말 많이 배웠는데, 그 중에서 제일 기억에 남는 건 역시 '시러베장단' 인 것 같다. ",
     "cover_image": "/static/uploads/3131cf7e-12d1-499e-8c04-3ad38d532c75.jpeg",
     "page_count": 284
+  },
+  {
+    "title": "비하인드 도어",
+    "author": "B. A. 패리스",
+    "category": "스리픽",
+    "read_date": "2025-12-20",
+    "description": "매력적인 정신병자에게서 탈출하기",
+    "rating": 4.0,
+    "review": "결혼식을 하자마자 돌변한 남편, 그리고 시작된 감금과 조종. 어떻게 탈출할 수 있을지 계획하는 내용을 읽으며 조마조마했다. 주인공에게 도움이 되어준 에스터는 일찌감치 이상한 기류를 눈치챈 것으로 묘사되는데, 그 부분에서 좀 더 개연성이 들어갔으면 좋을 것 같다. ",
+    "cover_image": "/static/uploads/d484bb69-cd61-4180-8d8a-939e92682128.jpeg",
+    "page_count": 308
+  },
+  {
+    "title": "이상한 집",
+    "author": "우케쓰",
+    "category": "스리픽",
+    "read_date": "2025-12-20",
+    "description": "온라인 괴담으로 상상해낸 컴팩트한 추리소설",
+    "rating": 2.5,
+    "review": "킬링타임 용으로는 적당. 일본 특유의 괴담 분위기. 엄청나게 재밌지는 않지만 짧아서 술술 읽힌다. 하지만 엥..?? 싶은 부분도 많다.",
+    "cover_image": "/static/uploads/e6d541bb-e1e4-49ce-a703-2bacc947fc40.jpeg",
+    "page_count": 294
+  },
+  {
+    "title": "우리가 반짝이는 계절",
+    "author": "장류진",
+    "category": "스리픽",
+    "read_date": "2025-12-21",
+    "description": "교환학생 때 친해진 친구와 15년 만에 핀란드 다시 여행하기",
+    "rating": 4.0,
+    "review": "나는 교환학생을 가기 위해서라도 대학에 가야한다고 생각한다. 30대가 되어 교환학생 시절을 되돌아보는 작가의 마음에 너무 공감하며 읽은 에세이. 내가 지냈던 도시도 다시 가면 그대로 있을까?",
+    "cover_image": "/static/uploads/bc7ee9c4-c59e-4cc4-b3b5-f3f0c6c8e775.jpeg",
+    "page_count": 383
   }
 ]
